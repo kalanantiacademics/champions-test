@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruangguru Champion's Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- MathJax for math rendering -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --theme-primary: #FFD700;
+            /* Default Yellow */
+            --theme-secondary: #FFFFFF;
+            --theme-accent: #FF69B4;
+            --theme-text: #333333;
+            --theme-border: #000000;
+            --theme-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #87CEEB;
+            /* Sky Blue fallback */
+            /* Added white overlay to wash out the busy background */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images2.imgbox.com/36/c0/MPbKSqwR_o.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--theme-text);
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-arcade {
+            font-family: 'Fredoka One', cursive;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0px #FFF;
+        }
+
+        /* Pop Art Card Style */
+        .game-box {
+            background: var(--theme-secondary);
+            color: var(--theme-text);
+            border: 4px solid var(--theme-border);
+            box-shadow: 8px 8px 0px var(--theme-border);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Header Bar inside Box */
+        .game-box::before {
+            content: '';
+            display: block;
+            height: 20px;
+            background: repeating-linear-gradient(45deg,
+                    var(--theme-border),
+                    var(--theme-border) 10px,
+                    var(--theme-primary) 10px,
+                    var(--theme-primary) 20px);
+            border-bottom: 4px solid var(--theme-border);
+            margin-bottom: 20px;
+        }
+
+        /* Pop Button Style */
+        .btn-arcade {
+            font-family: 'Fredoka One', cursive;
+            font-weight: normal;
+            text-transform: uppercase;
+            background: var(--theme-primary);
+            border: 3px solid var(--theme-border);
+            color: var(--theme-text);
+            box-shadow: 4px 4px 0px var(--theme-border);
+            border-radius: 50px;
+            transition: all 0.1s ease;
+            text-shadow: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-arcade:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0px var(--theme-border);
+            filter: brightness(1.1);
+        }
+
+        .btn-arcade:active {
+            transform: translateY(2px);
+            box-shadow: 0px 0px 0px var(--theme-border);
+        }
+
+        /* Input Fields */
+        input {
+            background: #FFF !important;
+            border: 3px solid var(--theme-border) !important;
+            color: var(--theme-text) !important;
+            font-family: 'Nunito', sans-serif !important;
+            border-radius: 12px;
+            box-shadow: inset 4px 4px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--theme-accent) !important;
+            box-shadow: inset 4px 4px 0px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            80% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate-fade-in {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Floating Icons Background (Replacing Code Symbols) */
+        .code-symbol {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.6;
+            animation: floatIcon 15s infinite linear;
+            filter: drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.2));
+        }
+
+        @keyframes floatIcon {
+            0% {
+                transform: translateY(110vh) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+            }
+        }
+
+        /* Memory Card Flip Effect */
+        .flip-container {
+            perspective: 1000px;
+        }
+
+        .flipper {
+            transition: 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .flip-active {
+            transform: rotateY(180deg);
+        }
+
+        .front,
+        .back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            border: 3px solid var(--theme-border);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: var(--theme-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        /* Theme Classes */
+        .theme-memory {
+            --theme-primary: #FF69B4;
+        }
+
+        /* Pink */
+        .theme-focus {
+            --theme-primary: #FFD700;
+        }
+
+        /* Yellow */
+        .theme-spatial {
+            --theme-primary: #4169E1;
+            color: white;
+        }
+
+        /* Royal Blue */
+        .theme-logical {
+            --theme-primary: #32CD32;
+        }
+
+        /* Lime Green */
+        .theme-numerical {
+            --theme-primary: #FF4500;
+            color: white;
+        }
+
+        /* Orange Red */
+
+        /* Specific text adjustments for dark backgrounds */
+        .theme-spatial .game-box,
+        .theme-numerical .game-box {
+            color: #333;
+            /* Reset text color inside box */
+        }
+
+        /* Icon Sprites Removed - Using Direct Images */
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Floating Code Symbols Background -->
+    <div id="code-background">
+        <!-- Symbols will be generated by JS -->
+    </div>
+
+    <!-- AUDIO EFFECTS -->
+    <audio id="sfx-click" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    <audio id="sfx-finish" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-score-interface-217.mp3"></audio>
+
+    <div id="app" class="w-full max-w-4xl">
+        <!-- Dynamic Content Loads Here -->
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DEVELOPER MODE CONTROLS (REMOVE BEFORE LAUNCH) -->
+    <!-- ========================================== -->
+    <div
+        style="position: fixed; bottom: 10px; right: 10px; z-index: 9999; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px;">
+        <p style="color: white; font-size: 10px; margin-bottom: 5px; font-family: sans-serif;">DEV MODE</p>
+        <button onclick="devPrev()"
+            style="background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: sans-serif; font-weight: bold; margin-right: 5px;">PREV</button>
+        <button onclick="devNext()"
+            style="background: #2ed573; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-family: sans-serif; font-weight: bold;">NEXT</button>
+    </div>
+    <!-- ========================================== -->
+
+    <script>
+        // ==========================================
+        // CONFIGURATION & DATA
+        // ==========================================
+
+        // PASTE YOUR GOOGLE APPS SCRIPT URL HERE TO ENABLE CLOUD SAVING
+        // If empty, the app simulates saving locally.
+        const GOOGLE_SCRIPT_URL = "";
+
+        // App State
+        const state = {
+            screen: 'welcome',
+            student: { name: '', grade: '', parentPhone: '', email: '' },
+            currentTestId: null,
+            currentQuestionIndex: 0,
+            observationPhase: false, // Track if we are in observation phase
+            answers: {},
+            completedTests: [],
+            timers: [], // Store active intervals to clear them on navigation
+            testTimeLeft: 0,
+            // 20 Real Images for the memorization sequence
+            memoryItems: [
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6610ed06-a7fa-48d9-a0b5-3e70dfe96b64.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2f3408b8-b6c5-42ce-8fc4-76544da13aec.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dda1163e-cfee-4085-a128-1cee88d2a2b2.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dfa1f11f-573e-47a1-b21f-b43677430afa.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/f2b6051d-8fe6-449d-a1bd-700906845629.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a49445b5-2191-40fc-ab02-08c50ba62317.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d60b31a0-5d31-49c6-ba4a-aa506324e9eb.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/acacd102-f722-407d-a934-f0f0fe033e98.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6637bca5-ab3b-4317-884c-563a351936ae.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/124e6158-10fb-4c89-a81d-81dc91c0c58f.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/84e3084a-e6f4-4c46-818a-d8e2c4ae31c4.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/78761237-ac87-45f5-811e-3044727f70d2.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d7b469e4-cc29-4eaa-b3d3-b673464d8d5e.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7056201d-cc29-4cfd-b409-f3ebf828f831.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/658c2384-6e47-4725-a726-abb41666eb52.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3832b7ab-fee3-408c-bfd7-25f0cd8edaff.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/69ce4a8b-0f8e-4f1c-9955-f9361bba1d6b.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/95c130ef-dcd0-429c-97e1-92808f27bf95.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/57573978-94e2-449d-b870-9250fe8bcc82.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4c854cb0-e3ff-46e4-9102-9a4d7169636a.png"
+            ]
+        };
+
+        let obsTimerInterval;
+        let globalTestInterval;
+
+        function clearAllTimers() {
+            state.timers.forEach(t => clearInterval(t));
+            state.timers = [];
+            if (typeof obsTimerInterval !== 'undefined') clearInterval(obsTimerInterval);
+        }
+
+        // --- TEST DATA (Extracted from PDFs) ---
+        const tests = {
+            memory: {
+                id: 'memory',
+                name: 'Memori',
+                themeClass: 'theme-memory',
+                iconUrl: 'https://images2.imgbox.com/9c/8d/7zVBm5rt_o.png',
+                instructions: 'FASE 1: HAFALKAN (2 detik). FASE 2: INGAT KEMBALI.',
+                type: 'memory-sequence',
+                questions: [
+                    { id: 'm1', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6610ed06-a7fa-48d9-a0b5-3e70dfe96b64.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e611cd15-84a1-4f60-b900-3ced4587ec40.png', val: 'B' }], correct: 'A' },
+                    { id: 'm2', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/db6cc0a3-4145-4f3d-83b7-ea8c70b4c213.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2f3408b8-b6c5-42ce-8fc4-76544da13aec.png', val: 'B' }], correct: 'B' },
+                    { id: 'm3', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/eed62e0d-6ae7-4a28-bbbe-69ca903d426f.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dda1163e-cfee-4085-a128-1cee88d2a2b2.png', val: 'B' }], correct: 'B' },
+                    { id: 'm4', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dfa1f11f-573e-47a1-b21f-b43677430afa.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6bf18d4f-bddf-496a-a63a-caa1e5a6446c.png', val: 'B' }], correct: 'A' },
+                    { id: 'm5', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5457602d-71f4-4712-8bb0-eba0b4835ece.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/f2b6051d-8fe6-449d-a1bd-700906845629.png', val: 'B' }], correct: 'B' },
+                    { id: 'm6', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a49445b5-2191-40fc-ab02-08c50ba62317.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2fee18cc-a277-468f-bfbd-5687d62a915a.png', val: 'B' }], correct: 'A' },
+                    { id: 'm7', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7ea699d7-e069-4501-917a-0884dff5c25a.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d60b31a0-5d31-49c6-ba4a-aa506324e9eb.png', val: 'B' }], correct: 'B' },
+                    { id: 'm8', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b3e618e3-c064-44ff-a746-f1258da6baec.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/acacd102-f722-407d-a934-f0f0fe033e98.png', val: 'B' }], correct: 'B' },
+                    { id: 'm9', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6637bca5-ab3b-4317-884c-563a351936ae.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7e0fc303-677f-4049-8915-0279a5e707ce.png', val: 'B' }], correct: 'A' },
+                    { id: 'm10', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/124e6158-10fb-4c89-a81d-81dc91c0c58f.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/97aecb22-9988-4e57-9f4e-9ac3bf03c3e8.png', val: 'B' }], correct: 'A' },
+                    { id: 'm11', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/78761237-ac87-45f5-811e-3044727f70d2.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c4fd7239-f01c-4f5a-9dc9-a684b32bd851.png', val: 'B' }], correct: 'A' },
+                    { id: 'm12', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0fe3ade3-08e9-40b8-8d34-346af88e7fed.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/84e3084a-e6f4-4c46-818a-d8e2c4ae31c4.png', val: 'B' }], correct: 'B' },
+                    { id: 'm13', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d7b469e4-cc29-4eaa-b3d3-b673464d8d5e.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/fbb49b64-0f2a-40df-b9d5-8143e773edc2.png', val: 'B' }], correct: 'A' },
+                    { id: 'm14', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3d63a61b-87ee-457c-93be-c46177fbdcdc.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7056201d-cc29-4cfd-b409-f3ebf828f831.png', val: 'B' }], correct: 'B' },
+                    { id: 'm15', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/30c83117-be4a-40d1-ae39-439d4913dae2.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/658c2384-6e47-4725-a726-abb41666eb52.png', val: 'B' }], correct: 'B' },
+                    { id: 'm16', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/936b9f3e-a9cb-4e75-9810-ccb3f5ff98d4.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3832b7ab-fee3-408c-bfd7-25f0cd8edaff.png', val: 'B' }], correct: 'B' },
+                    { id: 'm17', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/69ce4a8b-0f8e-4f1c-9955-f9361bba1d6b.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c5bac5eb-eb84-49d1-a286-412cf8a9d20f.png', val: 'B' }], correct: 'A' },
+                    { id: 'm18', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/95c130ef-dcd0-429c-97e1-92808f27bf95.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d0f66da0-d402-4f45-abba-9e87566c64e5.png', val: 'B' }], correct: 'A' },
+                    { id: 'm19', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5ff9e7a4-e11e-461a-ad1b-720d11bf9cf6.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/57573978-94e2-449d-b870-9250fe8bcc82.png', val: 'B' }], correct: 'B' },
+                    { id: 'm20', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4c854cb0-e3ff-46e4-9102-9a4d7169636a.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/69976178-4285-4254-ad2c-c088817f22b8.png', val: 'B' }], correct: 'A' }
+                ]
+            },
+            focus: {
+                id: 'focus',
+                name: 'Fokus',
+                themeClass: 'theme-focus',
+                iconUrl: 'https://images2.imgbox.com/41/9a/rr8icMqk_o.png',
+                instructions: 'PERHATIKAN GAMBAR (40s). JAWAB PERTANYAAN (20s).',
+                type: 'observation-mode',
+                questions: [
+                    {
+                        id: 'f1',
+                        obsImg: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/fc832054-5a1b-4646-bcd3-bea013aaac97.png',
+                        obsText: "Pergilah ke rumah dengan dinding berwarna kuning, beratap merah dan bernomor 82",
+                        q: "Yang mana rumahnya?",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4a31b339-819f-4312-93f5-9db60984f956.png' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/58771947-cdb5-48b6-bc7e-b4f78f2ea3c1.png' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/8fe499f8-97eb-4e6d-991c-ca4bbc380f93.png' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e1b7a692-5025-4ca6-bd44-0f8574d968ec.png' },
+                            { val: 'E', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/74b31bf1-7a56-4437-acdd-446b37235514.png' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'f2',
+                        obsImg: "https://images2.imgbox.com/96/ee/NKePkx05_o.png",
+                        obsText: "Kode Pos rumah adalah 12520",
+                        q: "Alamat lengkap rumah tersebut adalah...",
+                        type: 'text-options',
+                        options: [
+                            'JL. Anggrek no 82, Jakarta Selatan 15520',
+                            'JL. Anggrek no 82, Jakarta Selatan 12050',
+                            'JL. Anggrek no 82, Jakarta Selatan 12520',
+                            'JL. Anggrek no 82, Jakarta Selatan 11520',
+                            'JL. Anggrek no 82, Jakarta Selatan 15220'
+                        ],
+                        correct: 'JL. Anggrek no 82, Jakarta Selatan 12520'
+                    },
+                    {
+                        id: 'f3',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c56a7edd-8154-4b4b-88a6-0131c607af91.png",
+                        obsText: "Wah! Nomor teleponnya tidak lengkap. Petunjuk: 2 digit terakhir adalah nomor rumah dalam soal sebelumnya.",
+                        q: "Berapa Nomor Teleponnya?",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2188f6f3-6313-499c-a841-78e160d72fee.png' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/be4e4a27-abf4-4c16-9b5d-516ccb6a1c36.png' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/86197685-7ff1-43d5-8a01-ea244269349d.png' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a083b6fb-814f-4c33-8270-a0d7b2d631c4.png' },
+                            { val: 'E', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b59db74f-0906-41b0-a6a2-b3f188e81a3b.png' }
+                        ],
+                        correct: 'E'
+                    },
+                    {
+                        id: 'f4',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0f13ce1a-1090-4ac4-8428-6b2b4c3e8747.png",
+                        obsText: "Pecahkan kode ini menggunakan A=1, B=2, ... Z=26:",
+                        q: "Kata apa yang muncul?",
+                        type: 'text-options',
+                        options: [
+                            'SUARA',
+                            'MAURA',
+                            'TIARA',
+                            'JUARA',
+                            'LOMBA'
+                        ],
+                        correct: 'JUARA'
+                    },
+                    {
+                        id: 'f5',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/1de42ab6-5e01-42d5-b7e5-2e715e2a403c.png",
+                        obsText: "Perhatikan gambar berikut",
+                        q: "Warna apakah kotak dengan tulisan JUARA?",
+                        type: 'text-options',
+                        options: [
+                            'Hitam',
+                            'Coklat',
+                            'Merah',
+                            'Orange',
+                            'Hijau'
+                        ],
+                        correct: 'Coklat'
+                    },
+                    {
+                        id: 'f6',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0e2969a7-3b69-4fe1-ae72-e3abe3620666.png",
+                        obsText: "Wah, kotaknya dikunci! Angka yang terlihat adalah 6 4 8 7 3 0",
+                        q: "Ternyata urutan angkanya terbalik! Manakah kode yang tepat agar kuncinya dapat terbuka?",
+                        type: 'img-options',
+                        options: [
+                            { val: '073468', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: '037846', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: '307468', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: '073648', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: '038746', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' }
+                        ],
+                        correct: '037846'
+                    }
+                ]
+            },
+            spatial: {
+                id: 'spatial',
+                name: 'Spasial',
+                themeClass: 'theme-spatial',
+                iconUrl: 'https://images2.imgbox.com/3c/83/9lMdHGy6_o.png',
+                instructions: 'BENTUK & SUDUT.',
+                type: 'standard',
+                questions: [
+                    {
+                        id: 'v1',
+                        q: "Sebuah kertas persegi dilipat dua kali. Sebuah lubang kecil dipotong. Berapa banyak lubang saat dibuka?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7299b8c0-4cb9-453d-b32d-a844059fefe1.jpg",
+                        type: 'text-options',
+                        options: ['1', '2', '3', '4'],
+                        correct: '2'
+                    },
+                    {
+                        id: 'v2',
+                        q: "Daerah Istimewa Yogyakarta terbagi menjadi 5 wilayah. Tio ingin mewarnai peta dengan syarat wilayah yang bersebelahan tidak boleh diwarnai dengan warna yang sama. Berapa jumlah paling sedikit warna yang dibutuhkan oleh Tio?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/ee51b612-8506-4fc3-82f8-5713f7e9c62a.jpg",
+                        type: 'text-options',
+                        options: ['1', '2', '3', '4'],
+                        correct: '4'
+                    },
+                    {
+                        id: 'v3',
+                        q: "Seekor ayam menghadap utara. Ia berputar balik ke arah kanan sekali lalu maju 2 langkah. Sekarang ia menghadap ke arah?",
+                        type: 'text-options',
+                        options: ['Utara', 'Selatan', 'Barat', 'Timur'],
+                        correct: 'Selatan'
+                    },
+                    {
+                        id: 'v4',
+                        q: "Mobil berwarna biru sedang berkendara ke arah Timur Laut. Kemanakah arah mobil kuning bergerak?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/feac472d-a4eb-4247-98c6-f32c65d1804c.jpg",
+                        type: 'text-options',
+                        options: ['Barat Daya', 'Barat Laut', 'Tenggara', 'Timur Laut'],
+                        correct: 'Barat Laut'
+                    },
+                    {
+                        id: 'v5',
+                        q: "Di manakah dari figur di bawah ini yang merupakan hasil rotasi dari obyek yang ada di gambar?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a6ddba41-b7a1-409d-a36d-3dd72ba1ea1d.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/8688e577-62d5-4b76-a431-f6c0f52293fd.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/723e61d6-42c5-4ad5-b610-31e255d28373.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/00ee1b92-73c3-4d28-a941-f53e1f97b7a7.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a0c5deb1-4383-46ca-bdee-c65e212cb645.jpg' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'v6',
+                        q: "Di manakah dari figur di bawah ini yang merupakan hasil rotasi dari obyek yang ada di gambar?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/8752e42b-a3b3-4d06-bd7d-04146a6fa286.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5e19e352-fc86-4dbf-b48f-1a1ccb041c87.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e76adb65-43fc-4642-80c8-aa7a5c5c329d.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c4bb5eef-e89e-49fe-8f44-fa1452d5932c.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/66940050-1860-44f4-90dd-be7d370b2591.jpg' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'v7',
+                        q: "Berapakah jumlah bangun datar yang menyerupai figur segitiga?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4fa2c4f2-9583-49c2-8612-ff869953ff72.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/9c818123-0cba-414e-bec9-a42c316a843a.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/652ec131-2f35-4b2a-88b7-4d906cfec7f3.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/09b0ace2-b456-47cc-8586-72098b2e33e0.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/f03a3a32-5ffa-4f88-b03d-f44107e46994.jpg' }
+                        ],
+                        correct: 'D'
+                    },
+                    {
+                        id: 'v8',
+                        q: "Di manakah potongan gambar di bawah ini yang merupakan potongan dari puzzle nomor 4?",
+                        img: [
+                            "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/9d7fb61c-1845-4212-ba03-19d1b600f2ce.jpg",
+                            "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6e188421-4874-45d1-be8c-e1ef96e9ed75.jpg"
+                        ],
+                        type: 'text-options',
+                        options: ['A', 'B', 'C', 'D'],
+                        correct: 'B'
+                    }
+                ]
+            },
+            logical: {
+                id: 'logical',
+                name: 'Logika',
+                themeClass: 'theme-logical',
+                iconUrl: 'https://images2.imgbox.com/b9/f5/Xd01p3Pg_o.png',
+                instructions: 'SELESAIKAN TEKA-TEKI.',
+                type: 'standard',
+                questions: [
+                    {
+                        id: 'l1',
+                        q: "Perhatikan gambar berikut! Manakah pilihan yang tepat untuk menyusun bangun yang terdapat di gambar?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7f919602-c046-4242-98b9-c2b1e6072cb1.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2dbe5bbb-00b9-4230-8134-51fdbf0d6f02.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c1c802db-81bc-4354-8e93-7e2a65eceb40.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c6d285c0-d01c-46d4-ac19-78beeeea63e2.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e6df8f2f-5814-474b-975d-3bacce3ca004.jpg' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'l2',
+                        q: "Jika kamu mau membuat layang-layang, langkah mana yang paling akhir dari prosesnya?",
+                        type: 'text-options',
+                        options: ['Membeli bambu di toko', 'Memotong kertas sesuai bentuk', 'Mengikat rangka bambu dengan benang', 'Menerbangkan layang-layang'],
+                        correct: 'Menerbangkan layang-layang'
+                    },
+                    {
+                        id: 'l3',
+                        q: "Perhatikan pola berikut! Pola yang sesuai untuk gambar berikutnya adalah...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2047b644-b965-4de5-a8e0-832346cc29f0.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7eaecff4-f828-4ef0-8d81-810b79581dc5.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0813f220-7a16-4832-a534-c9df9be2323a.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3923cc98-2f63-431f-9972-18f919380050.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/bf812ad9-cb1a-4b98-b587-51e51d5123f6.jpg' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'l4',
+                        q: "Perhatikan gambar berikut! Temukan bentuk dan warna yang hilang!",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3dfff4e3-6c66-4943-9855-b786e2f95915.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7423ccbf-f122-4ad7-9a6b-91c45f168073.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/61b3516c-0c30-41e3-94db-f5d4252c2ffd.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/56bb13b8-8598-4dab-a449-fc43c5c8fbd8.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/637ac710-6223-4f87-b663-d4ee7635afb9.jpg' }
+                        ],
+                        correct: 'D'
+                    },
+                    {
+                        id: 'l5',
+                        q: "Dari pilihan berikut, mana yang berbeda:",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0e9a75bb-77a5-4854-98c7-d77c1468c697.jpg",
+                        type: 'text-options',
+                        options: ['Anjing', 'Kucing', 'Mobil', 'Burung'],
+                        correct: 'Mobil'
+                    },
+                    {
+                        id: 'l6',
+                        q: "Terdapat tiga stempel tertutup. Bentuk apa yang dihasilkan oleh stempel A?",
+                        img: [
+                            "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e5e1fd89-d5ff-4e1f-8faa-330d1fcd12e6.jpg",
+                            "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2174b0e8-d7d8-4480-9a7e-083a8d73cecc.jpg"
+                        ],
+                        type: 'text-options',
+                        options: ['Trapesium', 'Lingkaran', 'Segitiga', 'Segiempat'],
+                        correct: 'Segitiga'
+                    },
+                    {
+                        id: 'l7',
+                        q: "Kala akan membuat kue! Menurut resep, arah panah menunjukkan bahan kue yang ditambahkan pada urutan berikutnya. Bahan apakah yang seharusnya dimasukkan pertama kali?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/9a724437-87f1-4580-8241-5f68d2d76d26.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/cc51f74e-a17a-493e-8ab1-1b1745d8929a.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b47ed665-6334-4f68-b53a-2f03c0ec2bd1.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e9148bab-fbc8-4d4e-873a-06aad5d83cfd.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/95c50eb9-9b36-4b66-a353-d5adb9e5c03d.jpg' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'l8',
+                        q: "Suatu pagi di rumah Tio ada penculikan kucing. Polisi menemukan jejak sidik jari di depan pintu rumah. Ada 5 tersangka yang dicurigai sebagai penculiknya. Ayo kita sesuaikan sidik jarinya!",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4e83eb2f-a534-458e-8e5c-b18fbaab22a7.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5d1e4d2c-8091-4c13-b124-3cc8c001f516.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/1a19de22-5a3d-43c6-9b8c-3866735a6a82.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/db1ab325-bd0e-4223-8a81-22cb7b0c9695.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/906a2bed-7978-400a-9666-f560345f5cea.jpg' }
+                        ],
+                        correct: 'B'
+                    }
+                ]
+            },
+            numerical: {
+                id: 'numerical',
+                name: 'Numerik',
+                themeClass: 'theme-numerical',
+                iconUrl: 'https://images2.imgbox.com/92/b7/Mv9OQdqx_o.png',
+                instructions: 'HITUNG-HITUNGAN.',
+                type: 'standard',
+                questions: [
+                    {
+                        id: 'n1',
+                        q: "24 + 10 + 7 = ...",
+                        type: 'text-options',
+                        options: ['41', '42', '47'],
+                        correct: '41'
+                    },
+                    {
+                        id: 'n2',
+                        q: "Perhatikan pola bilangan berikut: 17, ( ), 23, 26, ( ), 32. Bilangan yang tepat untuk mengisi secara berurutan adalah ...",
+                        type: 'text-options',
+                        options: ['21 dan 28', '20 dan 29', '22 dan 28'],
+                        correct: '20 dan 29'
+                    },
+                    {
+                        id: 'n3',
+                        q: "Aisah memiliki 4 bungkus kacang. Tiap bungkus berisi 10 kacang. Nana memiliki 45 kacang. Siapa yang memiliki kacang paling banyak?",
+                        type: 'text-options',
+                        options: ['Aisah', 'Nana'],
+                        correct: 'Nana'
+                    },
+                    {
+                        id: 'n4',
+                        q: "Operator hitung agar nilai di sisi kiri sama dengan nilai di sisi kanan adalah ...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/8688e577-62d5-4b76-a431-f6c0f52293fd.jpg",
+                        type: 'text-options',
+                        options: ['+ dan -', '- dan +', '+ dan +'],
+                        correct: '+ dan +'
+                    },
+                    {
+                        id: 'n5',
+                        q: "Bilangan yang 18 lebih kecil dari 55 adalah ...",
+                        type: 'text-options',
+                        options: ['27', '37', '53'],
+                        correct: '37'
+                    },
+                    {
+                        id: 'n6',
+                        q: "Bilangan yang tepat untuk mengisi bagian yang kosong adalah ...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6402cc5a-ffef-436e-97ed-ae98900085e1.jpg",
+                        type: 'text-options',
+                        options: ['6 dan 8', '5 dan 7', '7 dan 7'],
+                        correct: '7 dan 7'
+                    },
+                    {
+                        id: 'n7',
+                        q: "Nilai A + B + C adalah ...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6fd1507f-b507-46fd-b360-323ff708d8b6.jpg",
+                        type: 'text-options',
+                        options: ['8', '7', '6'],
+                        correct: '6'
+                    },
+                    {
+                        id: 'n8',
+                        q: "Jumlahkan hasil terbesar dan terkecil dari kotak-kotak tersebut:",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c3b0ba71-f25e-49df-9684-0f3f98d9fa71.jpg",
+                        type: 'text-options',
+                        options: ['32', '42', '52'],
+                        correct: '32'
+                    }
+                ]
+            }
+        };
+
+        // ==========================================
+        // APP LOGIC
+        // ==========================================
+
+        function playSound(id) {
+            const audio = document.getElementById(id);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => { });
+            }
+        }
+
+        function renderApp() {
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+
+            // Update Theme Class on Body
+            document.body.className = 'min-h-screen flex flex-col items-center justify-center p-4'; // Reset
+            if (state.currentTestId && tests[state.currentTestId]) {
+                document.body.classList.add(tests[state.currentTestId].themeClass);
+            }
+
+            switch (state.screen) {
+                case 'welcome':
+                    app.innerHTML = `
+                        <div class="game-box p-8 text-center animate-fade-in max-w-2xl mx-auto relative">
+                            <h1 class="text-5xl text-code-accent mb-4 leading-tight" style="color: var(--theme-primary); -webkit-text-stroke: 2px black;">CHAMPION'S<br>TEST</h1>
+                            <p class="mb-8 font-bold text-xl">Edisi Ruangguru Coding</p>
+                            <button onclick="setScreen('student-info')" class="btn-arcade py-4 px-8 text-xl w-full sm:w-auto">
+                                MULAI
+                            </button>
+                        </div>
+                    `;
+                    break;
+
+                case 'student-info':
+                    app.innerHTML = `
+                        <div class="game-box p-8 max-w-md mx-auto">
+                            <h2 class="text-3xl mb-6 text-center" style="color: var(--theme-primary);">DATA PEMAIN</h2>
+                            <div class="space-y-4">
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-2">NAMA KAMU</label>
+                                    <input id="inp-name" type="text" class="w-full p-3 text-lg" placeholder="Nama Lengkap"
+                                        onfocus="document.getElementById('name-tooltip').classList.remove('hidden')"
+                                        onblur="document.getElementById('name-tooltip').classList.add('hidden')">
+                                    
+                                    <!-- Tooltip -->
+                                    <div id="name-tooltip" class="hidden absolute left-0 -top-10 bg-yellow-300 border-2 border-black p-2 rounded shadow-[4px_4px_0px_rgba(0,0,0,1)] z-10 transition-all">
+                                        <p class="text-xs font-bold text-black whitespace-nowrap">Masukkan Nama lengkap kamu ya</p>
+                                        <!-- Arrow -->
+                                        <div class="absolute -bottom-2 left-6 w-3 h-3 bg-yellow-300 border-r-2 border-b-2 border-black transform rotate-45"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">KELAS</label>
+                                    <select id="inp-class" class="w-full p-3 text-lg bg-white border border-gray-300 rounded">
+                                        <option value="" disabled selected>Pilih Kelas</option>
+                                        <option value="1 SD">1 SD</option>
+                                        <option value="2 SD">2 SD</option>
+                                        <option value="3 SD">3 SD</option>
+                                        <option value="4 SD">4 SD</option>
+                                        <option value="5 SD">5 SD</option>
+                                        <option value="6 SD">6 SD</option>
+                                    </select>
+                                </div>
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-2">NOMOR HP ORANG TUA</label>
+                                    <input id="inp-phone" type="text" class="w-full p-3 text-lg" placeholder="Contoh: 62812..." value="62" oninput="handlePhoneInput(this)">
+                                    
+                                    <!-- Warning Tooltip -->
+                                    <div id="phone-warning" class="hidden absolute left-0 -top-12 bg-red-500 border-2 border-black p-2 rounded shadow-[4px_4px_0px_rgba(0,0,0,1)] z-20 transition-all">
+                                        <p class="text-xs font-bold text-white whitespace-nowrap">Masukkan nomor telephone yang valid (maks 12 digit)</p>
+                                        <!-- Arrow -->
+                                        <div class="absolute -bottom-2 left-6 w-3 h-3 bg-red-500 border-r-2 border-b-2 border-black transform rotate-45"></div>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-2">EMAIL</label>
+                                    <input id="inp-email" type="email" class="w-full p-3 text-lg" placeholder="Contoh: email@domain.com"
+                                        onfocus="document.getElementById('email-tooltip').classList.remove('hidden')"
+                                        onblur="document.getElementById('email-tooltip').classList.add('hidden')">
+                                    
+                                    <!-- Tooltip -->
+                                    <div id="email-tooltip" class="hidden absolute left-0 -top-10 bg-yellow-300 border-2 border-black p-2 rounded shadow-[4px_4px_0px_rgba(0,0,0,1)] z-10 transition-all">
+                                        <p class="text-xs font-bold text-black whitespace-nowrap">*Isi dengan email yang sama saat registrasi</p>
+                                        <!-- Arrow -->
+                                        <div class="absolute -bottom-2 left-6 w-3 h-3 bg-yellow-300 border-r-2 border-b-2 border-black transform rotate-45"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2 mt-4">
+                                    <input id="inp-terms" type="checkbox" class="w-6 h-6 mt-1 accent-pink-500">
+                                    <label for="inp-terms" class="text-sm leading-tight">
+                                        Saya setuju pada <a href="https://www.ruangguru.com/terms-conditions?referralCookiesId=51caf2d0-3d50-43e1-97ff-43aa10e071fc" target="_blank" class="text-blue-600 underline">Syarat dan Ketentuan</a> serta <a href="https://www.ruangguru.com/privacy-policy?referralCookiesId=51caf2d0-3d50-43e1-97ff-43aa10e071fc" target="_blank" class="text-blue-600 underline">Kebijakan Privasi</a> yang berlaku.
+                                    </label>
+                                </div>
+                                <button onclick="saveStudentInfo()" class="btn-arcade py-3 px-6 w-full mt-4">
+                                    SIMPAN & MULAI
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                /* MENU REMOVED FOR CONTINUOUS FLOW */
+
+                case 'test-intro':
+                    const test = tests[state.currentTestId];
+                    app.innerHTML = `
+                        <div class="game-box p-8 text-center animate-fade-in max-w-lg mx-auto">
+                            <div class="mb-6 animate-bounce inline-block">
+                                <img src="${test.iconUrl}" style="width: 180px; height: auto; display: block; margin: 0 auto;">
+                            </div>
+                            <h2 class="text-4xl mb-2" style="color: var(--theme-primary);">${test.name.toUpperCase()}</h2>
+                            <p class="mb-8 font-bold text-lg">${test.instructions}</p>
+                            <button onclick="startTest('${test.id}')" class="btn-arcade py-3 px-6 text-lg">
+                                MULAI MISI
+                            </button>
+                        </div>
+                    `;
+                    break;
+
+                case 'test-memory-sequence':
+                    renderMemorySequence();
+                    break;
+
+                case 'test-active':
+                    renderQuestion();
+                    break;
+
+                case 'final-submit':
+                    app.innerHTML = `
+                        <div class="game-box p-8 text-center animate-fade-in max-w-lg mx-auto">
+                            <h2 class="text-3xl font-bold text-cyan-400 mb-4">STATUS: SELESAI</h2>
+                            <div class="text-6xl mb-4">🏆</div>
+                            <p class="mb-6 text-black font-bold">Kerja bagus, ${state.student.name}!</p>
+                            <p class="text-sm text-gray-600 mb-6">Data berhasil disimpan.</p>
+                            <button onclick="location.reload()" class="btn-arcade py-3 px-6 font-bold">
+                                ULANGI TES
+                            </button>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        function setScreen(screenName) {
+            state.screen = screenName;
+            renderApp();
+            if (screenName === 'welcome') playSound('sfx-click');
+        }
+
+        function handlePhoneInput(input) {
+            // 1. Lock "62" prefix
+            if (!input.value.startsWith('62')) {
+                input.value = '62' + input.value.replace(/^62/, '');
+            }
+
+            // 2. Ensure only numbers (optional but good)
+            input.value = input.value.replace(/[^0-9]/g, '');
+
+            // 3. Length Validation
+            const warningEl = document.getElementById('phone-warning');
+            if (input.value.length > 12) {
+                warningEl.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            } else {
+                warningEl.classList.add('hidden');
+                input.classList.remove('border-red-500');
+            }
+        }
+
+        function saveStudentInfo() {
+            const name = document.getElementById('inp-name').value;
+            const grade = document.getElementById('inp-class').value;
+            const phone = document.getElementById('inp-phone').value;
+            const email = document.getElementById('inp-email').value;
+            const terms = document.getElementById('inp-terms').checked;
+
+            if (!name || !grade || !phone || !email) {
+                alert("Mohon isi semua data!");
+                return;
+            }
+
+            // Phone Validation
+            if (phone.length > 12) {
+                alert("Nomor telepon tidak valid (maksimal 12 digit).");
+                return;
+            }
+
+            if (!terms) {
+                alert("Kamu harus menyetujui Syarat dan Ketentuan untuk melanjutkan.");
+                return;
+            }
+
+            state.student.name = name;
+            state.student.class = grade;
+            state.student.parentPhone = phone;
+            state.student.email = email;
+            playSound('sfx-click');
+            // START FIRST TEST DIRECTLY: FOCUS
+            startTestIntro('focus');
+        }
+
+        function startTestIntro(testId) {
+            state.currentTestId = testId;
+            setScreen('test-intro');
+        }
+
+        function startGlobalTimer(duration) {
+            if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
+            state.testTimeLeft = duration;
+
+            globalTestInterval = setInterval(() => {
+                state.testTimeLeft--;
+                const timerDisplay = document.getElementById('q-timer');
+                if (timerDisplay) {
+                    timerDisplay.innerText = state.testTimeLeft + 's';
+                }
+
+                if (state.testTimeLeft <= 0) {
+                    clearInterval(globalTestInterval);
+                    completeTest();
+                }
+            }, 1000);
+        }
+
+        function startTest(testId) {
+            state.currentTestId = testId;
+            state.currentQuestionIndex = 0;
+            state.screen = 'test-active';
+
+            const test = tests[testId];
+
+            // Global Timer for Numeric, Logic, Spatial (6 minutes = 360s)
+            if (['numerical', 'logical', 'spatial'].includes(testId)) {
+                startGlobalTimer(360);
+            }
+
+            if (test.type === 'memory-sequence') {
+                renderMemorySequence();
+            } else if (test.type === 'observation-mode') {
+                renderObservationPhase();
+            } else {
+                renderQuestion();
+            }
+        }
+
+        // --- MEMORY TEST LOGIC ---
+        function renderMemorySequence() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div id="mem-container" class="flex flex-col items-center justify-center h-screen">
+                    <h1 class="text-8xl font-arcade text-white mb-4" style="-webkit-text-stroke: 3px black;">3</h1>
+                    <p class="font-bold text-2xl bg-white px-6 py-3 border-4 border-black rounded-full shadow-lg">HAFALKAN!</p>
+                </div>
+            `;
+
+            let count = 3;
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    document.querySelector('#mem-container h1').innerText = count;
+                } else {
+                    clearInterval(interval);
+                    startGridMemoryTest();
+                }
+            }, 1000);
+            state.timers.push(interval);
+        }
+
+        function startGridMemoryTest() {
+            const app = document.getElementById('app');
+            // 5x4 Grid for 20 items
+            let gridHtml = `
+                <div class="flex flex-col items-center w-full max-w-6xl mx-auto animate-fade-in">
+                    <div class="flex justify-between w-full items-end mb-4 px-4">
+                        <div class="font-arcade text-2xl text-white" style="-webkit-text-stroke: 1px black;">GRID MEMORI</div>
+                        <div class="font-bold text-3xl bg-white px-4 py-2 border-4 border-black rounded-xl shadow-md" id="mem-timer">25</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-5 gap-2 w-full">
+            `;
+
+            state.memoryItems.forEach((imgSrc, index) => {
+                gridHtml += `
+                    <div class="flip-container aspect-square w-full">
+                        <div class="flipper w-full h-full flip-active" id="mem-card-${index}">
+                            <div class="front bg-white p-1 rounded-xl shadow-md border-2 border-black flex items-center justify-center">
+                                <img src="${imgSrc}" class="w-full h-full object-cover rounded-lg">
+                            </div>
+                            <div class="back rounded-xl border-2 border-black bg-pink-400 flex items-center justify-center">
+                                <span class="font-arcade text-white text-3xl">?</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            gridHtml += `</div></div>`;
+            app.innerHTML = gridHtml;
+
+            // Start timer and sequence concurrently
+            startTimer();
+            runFlipSequence();
+        }
+
+        function runFlipSequence() {
+            let i = 0;
+            const totalItems = state.memoryItems.length;
+
+            const interval = setInterval(() => {
+                if (i >= totalItems) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                const currentIndex = i;
+                const card = document.getElementById(`mem-card-${currentIndex}`);
+
+                // 1. Reveal
+                if (card) {
+                    card.classList.remove('flip-active');
+                    playSound('sfx-click');
+                }
+
+                // 2. Hide after 1s
+                setTimeout(() => {
+                    if (card) card.classList.add('flip-active');
+                }, 1000);
+
+                i++;
+            }, 1200); // 1.2 seconds per card
+            state.timers.push(interval);
+        }
+
+        function startTimer() {
+            let timeLeft = 25;
+            const timerEl = document.getElementById('mem-timer');
+
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timerEl) timerEl.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    state.currentQuestionIndex = 0;
+                    state.screen = 'test-active';
+                    renderApp();
+                }
+            }, 1000);
+        }
+
+        // --- OBSERVATION MODE LOGIC ---
+
+        function renderObservationPhase() {
+            state.observationPhase = true;
+            const test = tests[state.currentTestId];
+            const question = test.questions[state.currentQuestionIndex];
+            const app = document.getElementById('app');
+
+            let timeLeft = 40;
+
+            app.innerHTML = `
+                <div class="game-box p-8 text-center animate-fade-in max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-3xl" style="color: var(--theme-primary);">FASE OBSERVASI</h2>
+                        <div class="text-4xl font-bold bg-white px-4 py-2 border-4 border-black rounded-xl shadow-md">${timeLeft}s</div>
+                    </div>
+                    <div class="mb-6 border-4 border-black rounded-xl overflow-hidden bg-white">
+                        <img src="${question.obsImg}" class="w-full h-auto object-contain max-h-[60vh]">
+                    </div>
+                    <p class="text-xl font-bold">${question.obsText || 'Perhatikan gambar ini baik-baik!'}</p>
+                </div>
+            `;
+
+            clearInterval(obsTimerInterval);
+            obsTimerInterval = setInterval(() => {
+                timeLeft--;
+                const timerDisplay = app.querySelector('.text-4xl');
+                if (timerDisplay) timerDisplay.innerText = timeLeft + 's';
+
+                if (timeLeft <= 0) {
+                    clearInterval(obsTimerInterval);
+                    renderObservationQuestion();
+                }
+            }, 1000);
+        }
+
+        function renderObservationQuestion() {
+            state.observationPhase = false;
+            const test = tests[state.currentTestId];
+            const question = test.questions[state.currentQuestionIndex];
+            const total = test.questions.length;
+            const app = document.getElementById('app');
+
+            let timeLeft = 20;
+
+            // Reuse generic render logic but add timer
+            let qImgHTML = '';
+            if (question.img) {
+                qImgHTML = `<div class="flex justify-center mb-4"><img src="${question.img}" class="max-w-full h-auto max-h-64 border border-code-accent shadow-lg bg-gray-900 p-1"></div>`;
+            }
+
+            let optionsHTML = '';
+            if (question.type === 'text-options') {
+                optionsHTML = `<div class="grid grid-cols-1 gap-3">`;
+                question.options.forEach(opt => {
+                    optionsHTML += `<button onclick="selectAnswer('${opt.replace(/'/g, "\\'")}')" class="btn-arcade bg-white text-black hover:bg-yellow-300 py-4 px-6 text-left font-bold border-2 border-black text-lg">${opt}</button>`;
+                });
+                optionsHTML += `</div>`;
+            } else if (question.type === 'img-options') {
+                optionsHTML = `<div class="grid grid-cols-5 gap-2">`;
+                question.options.forEach(opt => {
+                    const val = opt.val || opt;
+                    const imgSrc = opt.img || '';
+                    const imgHTML = imgSrc ? `<img src="${imgSrc}" class="w-full h-auto mb-2 rounded">` : '';
+
+                    optionsHTML += `
+                        <button onclick="selectAnswer('${val}')" class="btn-arcade bg-white hover:bg-yellow-300 p-2 border-2 border-black flex flex-col items-center justify-center">
+                            ${imgHTML}
+                            <span class="font-bold text-xl">${val}</span>
+                        </button>
+                    `;
+                });
+                optionsHTML += `</div>`;
+            }
+
+            app.innerHTML = `
+                <div class="game-box p-6 w-full animate-fade-in max-w-3xl mx-auto">
+                    <div class="flex justify-between items-end mb-2 font-bold text-sm uppercase tracking-widest" style="color: var(--theme-primary);">
+                        <span>${test.name}</span>
+                        <span>Soal ${state.currentQuestionIndex + 1} / ${total}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-full bg-gray-200 h-4 rounded-full mr-4 overflow-hidden border-2 border-black">
+                            <div class="h-full transition-all duration-500 ease-out" style="width: ${((state.currentQuestionIndex + 1) / total) * 100}%; background: var(--theme-primary);"></div>
+                        </div>
+                        <div class="text-2xl font-bold bg-white px-3 py-1 border-2 border-black rounded shadow-sm text-red-500" id="q-timer">${timeLeft}s</div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-4 font-arcade">${question.q}</h3>
+                        ${qImgHTML}
+                    </div>
+
+                    ${optionsHTML}
+                </div>
+            `;
+
+            clearInterval(obsTimerInterval);
+            obsTimerInterval = setInterval(() => {
+                timeLeft--;
+                const timerDisplay = document.getElementById('q-timer');
+                if (timerDisplay) timerDisplay.innerText = timeLeft + 's';
+
+                if (timeLeft <= 0) {
+                    clearInterval(obsTimerInterval);
+                    // Time out - treat as wrong/skip
+                    selectAnswer('TIMEOUT');
+                }
+            }, 1000);
+        }
+
+        // --- GENERIC QUESTION RENDERER ---
+        function renderQuestion() {
+            const test = tests[state.currentTestId];
+            const question = test.questions[state.currentQuestionIndex];
+            const total = test.questions.length;
+
+            if (!state.answers[state.currentTestId]) state.answers[state.currentTestId] = {};
+
+            const app = document.getElementById('app');
+
+            let qImgHTML = '';
+            if (question.img) {
+                if (Array.isArray(question.img)) {
+                    qImgHTML = '<div class="flex flex-col items-center mb-4 space-y-2">';
+                    question.img.forEach(imgSrc => {
+                        qImgHTML += `<img src="${imgSrc}" class="max-w-full h-auto max-h-64 border border-code-accent shadow-lg bg-gray-900 p-1">`;
+                    });
+                    qImgHTML += '</div>';
+                } else {
+                    qImgHTML = `<div class="flex justify-center mb-4"><img src="${question.img}" class="max-w-full h-auto max-h-64 border border-code-accent shadow-lg bg-gray-900 p-1"></div>`;
+                }
+            }
+
+            let optionsHTML = '';
+            if (question.type === 'text-options') {
+                optionsHTML = `<div class="grid grid-cols-1 gap-3">`;
+                question.options.forEach(opt => {
+                    optionsHTML += `<button onclick="selectAnswer('${opt.replace(/'/g, "\\'")}')" class="btn-arcade bg-white text-black hover:bg-yellow-300 py-4 px-6 text-left font-bold border-2 border-black text-lg">${opt}</button>`;
+                });
+                optionsHTML += `</div>`;
+            } else if (question.type === 'img-only' || question.type === 'img-options') {
+                optionsHTML = `<div class="grid grid-cols-2 gap-4">`;
+                question.options.forEach(opt => {
+                    const imgSrc = opt.img || opt;
+                    const val = opt.val || opt;
+                    optionsHTML += `
+                        <button onclick="selectAnswer('${val}')" class="btn-arcade bg-white hover:bg-yellow-300 p-3 border-2 border-black flex flex-col items-center">
+                            <img src="${imgSrc}" class="w-full h-32 object-contain mb-2 bg-gray-100 border border-gray-300 rounded">
+                            <span class="font-bold text-xl">${val}</span>
+                        </button>
+                    `;
+                });
+                optionsHTML += `</div>`;
+            }
+
+            app.innerHTML = `
+                <div class="game-box p-6 w-full animate-fade-in max-w-3xl mx-auto">
+                    <div class="flex justify-between items-end mb-2 font-bold text-sm uppercase tracking-widest" style="color: var(--theme-primary);">
+                        <span>${test.name}</span>
+                        <span>Soal ${state.currentQuestionIndex + 1} / ${total}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-full bg-gray-200 h-4 rounded-full mr-4 overflow-hidden border-2 border-black">
+                            <div class="h-full transition-all duration-500 ease-out" style="width: ${((state.currentQuestionIndex + 1) / total) * 100}%; background: var(--theme-primary);"></div>
+                        </div>
+                        ${test.id === 'memory' ? `<div class="text-2xl font-bold bg-white px-3 py-1 border-2 border-black rounded shadow-sm text-red-500" id="q-timer">180s</div>` : ''}
+                        ${['numerical', 'logical', 'spatial'].includes(test.id) ? `<div class="text-2xl font-bold bg-white px-3 py-1 border-2 border-black rounded shadow-sm text-red-500" id="q-timer">${state.testTimeLeft}s</div>` : ''}
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-4 font-arcade">${question.q}</h3>
+                        ${qImgHTML}
+                    </div>
+
+                    ${optionsHTML}
+                </div>
+            `;
+
+            if (window.MathJax) window.MathJax.typesetPromise();
+
+            // Memory Test Timer Logic
+            if (test.id === 'memory') {
+                let timeLeft = 180;
+                if (obsTimerInterval) clearInterval(obsTimerInterval);
+
+                obsTimerInterval = setInterval(() => {
+                    timeLeft--;
+                    const timerDisplay = document.getElementById('q-timer');
+                    if (timerDisplay) timerDisplay.innerText = timeLeft + 's';
+
+                    if (timeLeft <= 0) {
+                        clearInterval(obsTimerInterval);
+                        selectAnswer('TIMEOUT');
+                    }
+                }, 1000);
+                state.timers.push(obsTimerInterval);
+            }
+        }
+
+        function selectAnswer(val) {
+            // Clear any timers
+            if (obsTimerInterval) clearInterval(obsTimerInterval);
+
+            playSound('sfx-click');
+            const test = tests[state.currentTestId];
+            const q = test.questions[state.currentQuestionIndex];
+
+            if (!state.answers[state.currentTestId]) {
+                state.answers[state.currentTestId] = {};
+            }
+            state.answers[state.currentTestId][q.id] = val;
+
+            if (state.currentQuestionIndex < test.questions.length - 1) {
+                state.currentQuestionIndex++;
+                if (test.type === 'observation-mode') {
+                    renderObservationPhase();
+                } else {
+                    renderQuestion();
+                }
+            } else {
+                completeTest();
+            }
+        }
+
+        function completeTest() {
+            if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
+            state.completedTests.push(state.currentTestId);
+            playSound('sfx-correct');
+
+            // SEQUENTIAL LOGIC: Focus -> Memory -> Numerical -> Logical -> Spatial -> Finish
+            const sequence = ['focus', 'memory', 'numerical', 'logical', 'spatial'];
+            const currentIndex = sequence.indexOf(state.currentTestId);
+
+            if (currentIndex !== -1 && currentIndex < sequence.length - 1) {
+                const nextTestId = sequence[currentIndex + 1];
+                startTestIntro(nextTestId);
+            } else {
+                setScreen('final-submit');
+            }
+        }
+
+        // --- DATA SUBMISSION (SIMULATED) ---
+        async function submitAllData() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                        < div class="flex flex-col items-center justify-center h-64" >
+                    <div class="loader mb-6"></div>
+                    <p class="font-arcade text-yellow-400 text-xl blink">MENGIRIM DATA...</p>
+                </div >
+            `;
+
+            // If URL is set, try real fetch, otherwise simulate
+            if (GOOGLE_SCRIPT_URL) {
+                try {
+                    const payload = {
+                        timestamp: new Date().toISOString(),
+                        student: state.student,
+                        answers: state.answers
+                    };
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    finishSubmit();
+                } catch (e) {
+                    console.error("Upload failed, falling back to simulation", e);
+                    finishSubmit();
+                }
+            } else {
+                // Simulate network delay
+                setTimeout(() => {
+                    console.log("Data that would be sent:", state.answers);
+                    finishSubmit();
+                }, 1500);
+            }
+        }
+
+        function finishSubmit() {
+            playSound('sfx-finish');
+            setScreen('final-submit');
+        }
+
+        // Generate Background Symbols
+        function initBackground() {
+            const container = document.getElementById('code-background');
+            const symbols = ['★', '●', '▲', '■', '♥', '♦'];
+
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.classList.add('code-symbol');
+                el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.color = ['#FFD700', '#FF69B4', '#00BFFF', '#32CD32'][Math.floor(Math.random() * 4)];
+                el.style.fontSize = (Math.random() * 2 + 2) + 'rem';
+                el.style.animationDuration = (Math.random() * 5 + 10) + 's';
+                container.appendChild(el);
+
+                setTimeout(() => el.remove(), 15000);
+            }, 800);
+        }
+
+        // Initialize
+        initBackground();
+        renderApp();
+        // ==========================================
+        // DEVELOPER MODE FUNCTIONS (REMOVE BEFORE LAUNCH)
+        // ==========================================
+        function devNext() {
+            clearAllTimers();
+
+            // If we are in a test
+            if (state.screen === 'test-active' || state.screen === 'test-memory-sequence') {
+                const test = tests[state.currentTestId];
+
+                // Special handling for Observation Mode: If in observation phase, go to question phase
+                if (test.type === 'observation-mode' && state.observationPhase) {
+                    renderObservationQuestion();
+                    return;
+                }
+
+                if (state.currentQuestionIndex < test.questions.length - 1) {
+                    // Go to next question
+                    state.currentQuestionIndex++;
+                    if (test.type === 'observation-mode') {
+                        renderObservationPhase();
+                    } else {
+                        renderQuestion();
+                    }
+                } else {
+                    // Go to next test
+                    completeTest();
+                }
+            } else if (state.screen === 'welcome') {
+                setScreen('student-info');
+            } else if (state.screen === 'student-info') {
+                saveStudentInfo();
+            } else if (state.screen === 'test-intro') {
+                startTest(state.currentTestId);
+            }
+        }
+
+        function devPrev() {
+            clearAllTimers();
+
+            if (state.screen === 'test-active' || state.screen === 'test-memory-sequence') {
+                if (state.currentQuestionIndex > 0) {
+                    state.currentQuestionIndex--;
+                    const test = tests[state.currentTestId];
+                    if (test.type === 'observation-mode') {
+                        renderObservationPhase();
+                    } else {
+                        renderQuestion();
+                    }
+                } else {
+                    // Go back to intro
+                    if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
+                    setScreen('test-intro');
+                }
+            } else if (state.screen === 'test-intro') {
+                // Go back to previous test
+                const sequence = ['focus', 'memory', 'numerical', 'logical', 'spatial'];
+                const currentIndex = sequence.indexOf(state.currentTestId);
+                if (currentIndex > 0) {
+                    const prevTestId = sequence[currentIndex - 1];
+                    state.currentTestId = prevTestId;
+                    setScreen('test-intro');
+                } else {
+                    setScreen('student-info');
+                }
+            } else if (state.screen === 'student-info') {
+                setScreen('welcome');
+            } else if (state.screen === 'final-submit') {
+                // Go back to last test
+                const sequence = ['focus', 'memory', 'numerical', 'logical', 'spatial'];
+                const lastTestId = sequence[sequence.length - 1];
+                state.currentTestId = lastTestId;
+                state.currentQuestionIndex = tests[lastTestId].questions.length - 1;
+                startTest(lastTestId);
+            }
+        }
+    </script>
+</body>
+
+</html>
