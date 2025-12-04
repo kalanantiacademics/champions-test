@@ -1,0 +1,2128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruangguru Champion's Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- MathJax for math rendering -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --theme-primary: #FFD700;
+            /* Default Yellow */
+            --theme-secondary: #FFFFFF;
+            --theme-accent: #FF69B4;
+            --theme-text: #333333;
+            --theme-border: #000000;
+            --theme-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #87CEEB;
+            /* Sky Blue fallback */
+            /* Added white overlay to wash out the busy background */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images2.imgbox.com/36/c0/MPbKSqwR_o.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--theme-text);
+        }
+
+        h1,
+        h2,
+        h3,
+        .font-arcade {
+            font-family: 'Fredoka One', cursive;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0px #FFF;
+        }
+
+        /* Pop Art Card Style */
+        .game-box {
+            background: var(--theme-secondary);
+            color: var(--theme-text);
+            border: 4px solid var(--theme-border);
+            box-shadow: 8px 8px 0px var(--theme-border);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Header Bar inside Box */
+        .game-box::before {
+            content: '';
+            display: block;
+            height: 20px;
+            background: repeating-linear-gradient(45deg,
+                    var(--theme-border),
+                    var(--theme-border) 10px,
+                    var(--theme-primary) 10px,
+                    var(--theme-primary) 20px);
+            border-bottom: 4px solid var(--theme-border);
+            margin-bottom: 20px;
+        }
+
+        /* Pop Button Style */
+        .btn-arcade {
+            font-family: 'Fredoka One', cursive;
+            font-weight: normal;
+            text-transform: uppercase;
+            background: var(--theme-primary);
+            border: 3px solid var(--theme-border);
+            color: var(--theme-text);
+            box-shadow: 4px 4px 0px var(--theme-border);
+            border-radius: 50px;
+            transition: all 0.1s ease;
+            text-shadow: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-arcade:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0px var(--theme-border);
+            filter: brightness(1.1);
+        }
+
+        .btn-arcade:active {
+            transform: translateY(2px);
+            box-shadow: 0px 0px 0px var(--theme-border);
+        }
+
+        /* Input Fields */
+        input,
+        select {
+            background: #FFF !important;
+            border: 3px solid var(--theme-border) !important;
+            color: var(--theme-text) !important;
+            font-family: 'Nunito', sans-serif !important;
+            border-radius: 12px;
+            box-shadow: inset 4px 4px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--theme-accent) !important;
+            box-shadow: inset 4px 4px 0px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            80% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate-fade-in {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Floating Icons Background (Replacing Code Symbols) */
+        .code-symbol {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.6;
+            animation: floatIcon 15s infinite linear;
+            filter: drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.2));
+        }
+
+        @keyframes floatIcon {
+            0% {
+                transform: translateY(110vh) rotate(0deg);
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+            }
+        }
+
+        #code-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Memory Card Flip Effect */
+        .flip-container {
+            perspective: 1000px;
+        }
+
+        .flipper {
+            transition: 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .flip-active {
+            transform: rotateY(180deg);
+        }
+
+        .front,
+        .back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            border: 3px solid var(--theme-border);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: var(--theme-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        /* Theme Classes */
+        .theme-memory {
+            --theme-primary: #FF69B4;
+        }
+
+        /* Pink */
+        .theme-focus {
+            --theme-primary: #FFD700;
+        }
+
+        /* Yellow */
+        .theme-spatial {
+            --theme-primary: #4169E1;
+            color: white;
+        }
+
+        /* Royal Blue */
+        .theme-logical {
+            --theme-primary: #32CD32;
+        }
+
+        /* Lime Green */
+        .theme-numerical {
+            --theme-primary: #FF4500;
+            color: white;
+        }
+
+        /* Orange Red */
+
+        /* Specific text adjustments for dark backgrounds */
+        .theme-spatial .game-box,
+        .theme-numerical .game-box {
+            color: #333;
+            /* Reset text color inside box */
+        }
+
+        /* Icon Sprites Removed - Using Direct Images */
+
+        /* Selected Answer Style */
+        .selected-answer {
+            background-color: #FFD700 !important;
+            border-color: #FF69B4 !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important;
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+            pointer-events: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Floating Code Symbols Background -->
+    <div id="code-background">
+        <!-- Symbols will be generated by JS -->
+    </div>
+
+    <!-- AUDIO EFFECTS -->
+    <audio id="sfx-click" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3"></audio>
+    <audio id="sfx-correct" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
+    <audio id="sfx-finish" src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-score-interface-217.mp3"></audio>
+
+    <div id="app" class="w-full max-w-4xl">
+        <!-- Dynamic Content Loads Here -->
+    </div>
+
+
+    <!-- Custom Warning Modal -->
+    <div id="custom-modal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+        <div
+            class="bg-white border-4 border-black p-6 rounded-xl shadow-[8px_8px_0px_rgba(0,0,0,1)] max-w-sm w-full text-center animate-bounce-in">
+            <h3 class="text-2xl font-bold mb-4 text-red-500 font-arcade">PERHATIAN!</h3>
+            <p id="modal-message" class="text-lg font-bold mb-6">Pesan error disini.</p>
+            <button onclick="closeModal()"
+                class="btn-arcade py-2 px-6 bg-yellow-400 hover:bg-yellow-500 text-black">OK</button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay"
+        class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+        <div class="text-center text-white">
+            <div class="spinner w-16 h-16 border-t-4 border-white mb-4 mx-auto" style="border-width: 6px;"></div>
+            <h2 class="text-2xl font-bold font-arcade animate-pulse tracking-widest">MEMPROSES DATA...</h2>
+            <p class="text-sm mt-2 opacity-80">Mohon jangan tutup halaman ini</p>
+        </div>
+    </div>
+
+    <!-- CHAMPION REVEAL SCREEN -->
+    <div id="screen-champion-reveal"
+        class="screen hidden flex flex-col items-center justify-center min-h-screen p-4 text-center">
+        <div class="game-box p-4 md:p-8 max-w-2xl w-full bg-white animate-fade-in">
+            <h1 class="text-3xl md:text-4xl font-arcade text-yellow-400 mb-4 text-stroke">CONGRATULATIONS!</h1>
+            <p class="text-xl text-gray-600 mb-6">You are a...</p>
+
+            <div id="champion-result" class="mb-8">
+                <img id="champion-image" src="" alt="Champion Character"
+                    class="w-64 h-64 mx-auto mb-4 object-contain animate-bounce-slow">
+                <h2 id="champion-title" class="text-3xl font-bold text-purple-600 font-arcade"></h2>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8 text-xs">
+                <div class="bg-yellow-100 p-2 rounded">
+                    <div class="font-bold">Focus</div>
+                    <div id="score-focus">0</div>
+                </div>
+                <div class="bg-blue-100 p-2 rounded">
+                    <div class="font-bold">Memory</div>
+                    <div id="score-memory">0</div>
+                </div>
+                <div class="bg-green-100 p-2 rounded">
+                    <div class="font-bold">Numerical</div>
+                    <div id="score-numerical">0</div>
+                </div>
+                <div class="bg-purple-100 p-2 rounded">
+                    <div class="font-bold">Logical</div>
+                    <div id="score-logical">0</div>
+                </div>
+                <div class="bg-red-100 p-2 rounded">
+                    <div class="font-bold">Spatial</div>
+                    <div id="score-spatial">0</div>
+                </div>
+            </div>
+
+            <button onclick="finishSubmit()"
+                class="btn-arcade px-8 md:px-12 py-4 text-2xl hover:scale-105 transform transition-transform">
+                FINISH
+            </button>
+        </div>
+    </div>
+
+    <!-- FINAL SUBMISSION SCREEN -->
+    <div id="screen-final-submit" class="screen hidden flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="game-box p-6 md:p-10 max-w-2xl w-full bg-white animate-fade-in text-center">
+            <h1 class="text-3xl md:text-4xl font-arcade text-yellow-400 mb-6 text-stroke">TERIMA KASIH!</h1>
+            <p class="text-lg md:text-xl font-bold text-gray-700 mb-4">
+                Terima kasih sudah mengerjakan Champions Test.
+            </p>
+            <p class="text-lg md:text-xl text-gray-600 mb-8">
+                Selanjutnya tim Ruangguru akan menghubungi kamu untuk memberikan hasil lengkap nya!
+            </p>
+
+            <div class="border-t-2 border-gray-200 pt-6 mt-6">
+                <p class="text-sm font-bold text-gray-500 mb-2">Jika punya pertanyaan, silakan hubungi kami</p>
+                <div class="flex items-center justify-center space-x-2 text-green-600 font-bold text-xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                    </svg>
+                    <span>0812-1222-9300</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION & DATA
+        // ==========================================
+
+        // PASTE YOUR GOOGLE APPS SCRIPT URL HERE TO ENABLE CLOUD SAVING
+        // If empty, the app simulates saving locally.
+        // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwc7fWYwcvqpEBqj8coPVl9OStREpL6zzmbKQPG5zvki-DTpuzA3cYjXUrFnJyJrOXq/exec";
+
+        // App State
+        const state = {
+            screen: 'welcome',
+            student: { name: '', grade: '', school: '', parentPhone: '', email: '', termsAccepted: false },
+            currentTestId: null,
+            currentQuestionIndex: 0,
+            currentSelection: null,
+            testTimeLeft: 0,
+            timers: [],
+            answers: {},
+            completedTests: [],
+            submissionPayload: null,
+            results: null, // Store calculated results here
+            // 20 Real Images for the memorization sequence
+            memoryItems: [
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6610ed06-a7fa-48d9-a0b5-3e70dfe96b64.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2f3408b8-b6c5-42ce-8fc4-76544da13aec.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dda1163e-cfee-4085-a128-1cee88d2a2b2.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dfa1f11f-573e-47a1-b21f-b43677430afa.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/f2b6051d-8fe6-449d-a1bd-700906845629.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a49445b5-2191-40fc-ab02-08c50ba62317.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d60b31a0-5d31-49c6-ba4a-aa506324e9eb.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/acacd102-f722-407d-a934-f0f0fe033e98.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6637bca5-ab3b-4317-884c-563a351936ae.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/124e6158-10fb-4c89-a81d-81dc91c0c58f.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/84e3084a-e6f4-4c46-818a-d8e2c4ae31c4.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/78761237-ac87-45f5-811e-3044727f70d2.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d7b469e4-cc29-4eaa-b3d3-b673464d8d5e.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7056201d-cc29-4cfd-b409-f3ebf828f831.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/658c2384-6e47-4725-a726-abb41666eb52.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3832b7ab-fee3-408c-bfd7-25f0cd8edaff.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/69ce4a8b-0f8e-4f1c-9955-f9361bba1d6b.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/95c130ef-dcd0-429c-97e1-92808f27bf95.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/57573978-94e2-449d-b870-9250fe8bcc82.png",
+                "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4c854cb0-e3ff-46e4-9102-9a4d7169636a.png"
+            ]
+        };
+
+        let obsTimerInterval;
+        let globalTestInterval;
+        let isProcessing = false; // Prevent rapid clicks
+
+        function clearAllTimers() {
+            state.timers.forEach(t => clearInterval(t));
+            state.timers = [];
+            if (typeof obsTimerInterval !== 'undefined') clearInterval(obsTimerInterval);
+        }
+
+        // --- TEST DATA (Extracted from PDFs) ---
+        const tests = {
+            memory: {
+                id: 'memory',
+                name: 'Memori',
+                themeClass: 'theme-memory',
+                iconUrl: 'https://images2.imgbox.com/9c/8d/7zVBm5rt_o.png',
+                instructions: '<ul class="text-left text-sm space-y-1 list-disc pl-5"><li>Gambar akan ditampilkan selama 20 detik. 1 gambar 1 detik.</li><li>Setelah gambar ditampilkan, peserta memiliki waktu 15 detik untuk menjawab satu soal berdasarkan gambar tersebut.</li><li>Total waktu keseluruhan tes adalah sekitar 5 menit 25 detik.</li></ul><br><br>',
+                type: 'memory-sequence',
+                questions: [
+                    { id: 'm1', code: 'M.01', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6610ed06-a7fa-48d9-a0b5-3e70dfe96b64.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e611cd15-84a1-4f60-b900-3ced4587ec40.png', val: 'B' }], correct: 'A' },
+                    { id: 'm2', code: 'M.02', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/db6cc0a3-4145-4f3d-83b7-ea8c70b4c213.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2f3408b8-b6c5-42ce-8fc4-76544da13aec.png', val: 'B' }], correct: 'B' },
+                    { id: 'm3', code: 'M.03', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/eed62e0d-6ae7-4a28-bbbe-69ca903d426f.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dda1163e-cfee-4085-a128-1cee88d2a2b2.png', val: 'B' }], correct: 'B' },
+                    { id: 'm4', code: 'M.04', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/dfa1f11f-573e-47a1-b21f-b43677430afa.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6bf18d4f-bddf-496a-a63a-caa1e5a6446c.png', val: 'B' }], correct: 'A' },
+                    { id: 'm5', code: 'M.05', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5457602d-71f4-4712-8bb0-eba0b4835ece.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/f2b6051d-8fe6-449d-a1bd-700906845629.png', val: 'B' }], correct: 'B' },
+                    { id: 'm6', code: 'M.06', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a49445b5-2191-40fc-ab02-08c50ba62317.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2fee18cc-a277-468f-bfbd-5687d62a915a.png', val: 'B' }], correct: 'A' },
+                    { id: 'm7', code: 'M.07', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7ea699d7-e069-4501-917a-0884dff5c25a.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d60b31a0-5d31-49c6-ba4a-aa506324e9eb.png', val: 'B' }], correct: 'B' },
+                    { id: 'm8', code: 'M.08', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b3e618e3-c064-44ff-a746-f1258da6baec.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/acacd102-f722-407d-a934-f0f0fe033e98.png', val: 'B' }], correct: 'B' },
+                    { id: 'm9', code: 'M.09', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6637bca5-ab3b-4317-884c-563a351936ae.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7e0fc303-677f-4049-8915-0279a5e707ce.png', val: 'B' }], correct: 'A' },
+                    { id: 'm10', code: 'M.10', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/124e6158-10fb-4c89-a81d-81dc91c0c58f.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/97aecb22-9988-4e57-9f4e-9ac3bf03c3e8.png', val: 'B' }], correct: 'A' },
+                    { id: 'm11', code: 'M.11', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/78761237-ac87-45f5-811e-3044727f70d2.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c4fd7239-f01c-4f5a-9dc9-a684b32bd851.png', val: 'B' }], correct: 'A' },
+                    { id: 'm12', code: 'M.12', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0fe3ade3-08e9-40b8-8d34-346af88e7fed.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/84e3084a-e6f4-4c46-818a-d8e2c4ae31c4.png', val: 'B' }], correct: 'B' },
+                    { id: 'm13', code: 'M.13', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d7b469e4-cc29-4eaa-b3d3-b673464d8d5e.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/fbb49b64-0f2a-40df-b9d5-8143e773edc2.png', val: 'B' }], correct: 'A' },
+                    { id: 'm14', code: 'M.14', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3d63a61b-87ee-457c-93be-c46177fbdcdc.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7056201d-cc29-4cfd-b409-f3ebf828f831.png', val: 'B' }], correct: 'B' },
+                    { id: 'm15', code: 'M.15', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/30c83117-be4a-40d1-ae39-439d4913dae2.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/658c2384-6e47-4725-a726-abb41666eb52.png', val: 'B' }], correct: 'B' },
+                    { id: 'm16', code: 'M.16', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/936b9f3e-a9cb-4e75-9810-ccb3f5ff98d4.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3832b7ab-fee3-408c-bfd7-25f0cd8edaff.png', val: 'B' }], correct: 'B' },
+                    { id: 'm17', code: 'M.17', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/69ce4a8b-0f8e-4f1c-9955-f9361bba1d6b.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c5bac5eb-eb84-49d1-a286-412cf8a9d20f.png', val: 'B' }], correct: 'A' },
+                    { id: 'm18', code: 'M.18', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/95c130ef-dcd0-429c-97e1-92808f27bf95.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/d0f66da0-d402-4f45-abba-9e87566c64e5.png', val: 'B' }], correct: 'A' },
+                    { id: 'm19', code: 'M.19', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5ff9e7a4-e11e-461a-ad1b-720d11bf9cf6.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/57573978-94e2-449d-b870-9250fe8bcc82.png', val: 'B' }], correct: 'B' },
+                    { id: 'm20', code: 'M.20', q: "Gambar mana yang kamu lihat?", type: 'img-only', options: [{ img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4c854cb0-e3ff-46e4-9102-9a4d7169636a.png', val: 'A' }, { img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/69976178-4285-4254-ad2c-c088817f22b8.png', val: 'B' }], correct: 'A' }
+                ]
+            },
+            focus: {
+                id: 'focus',
+                name: 'Fokus',
+                themeClass: 'theme-focus',
+                iconUrl: 'https://images2.imgbox.com/41/9a/rr8icMqk_o.png',
+                instructions: '<ul class="text-left text-sm space-y-1 list-disc pl-5"><li>Setiap gambar akan ditampilkan selama 40 detik.</li><li>Setelah gambar ditampilkan, peserta memiliki waktu 20 detik untuk menjawab setiap soal berdasarkan gambar tersebut.</li><li>Total waktu keseluruhan tes adalah 6 menit.</li></ul><br><br>',
+                type: 'observation-mode',
+                questions: [
+                    {
+                        id: 'f1',
+                        code: 'F.01',
+                        obsImg: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/fc832054-5a1b-4646-bcd3-bea013aaac97.png',
+                        obsText: "Pergilah ke rumah dengan dinding berwarna kuning, beratap merah dan bernomor 82",
+                        q: "Yang mana rumahnya?",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4a31b339-819f-4312-93f5-9db60984f956.png' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/58771947-cdb5-48b6-bc7e-b4f78f2ea3c1.png' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/8fe499f8-97eb-4e6d-991c-ca4bbc380f93.png' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e1b7a692-5025-4ca6-bd44-0f8574d968ec.png' },
+                            { val: 'E', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/74b31bf1-7a56-4437-acdd-446b37235514.png' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'f2',
+                        code: 'F.02',
+                        obsImg: "https://images2.imgbox.com/96/ee/NKePkx05_o.png",
+                        obsText: "Kode Pos rumah adalah 12520",
+                        q: "Alamat lengkap rumah tersebut adalah...",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'JL. Anggrek no 82, Jakarta Selatan 15520' },
+                            { val: 'B', text: 'JL. Anggrek no 82, Jakarta Selatan 12050' },
+                            { val: 'C', text: 'JL. Anggrek no 82, Jakarta Selatan 12520' },
+                            { val: 'D', text: 'JL. Anggrek no 82, Jakarta Selatan 11520' },
+                            { val: 'E', text: 'JL. Anggrek no 82, Jakarta Selatan 15220' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'f3',
+                        code: 'F.03',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c56a7edd-8154-4b4b-88a6-0131c607af91.png",
+                        obsText: "Wah! Nomor teleponnya tidak lengkap.",
+                        q: "Berapa Nomor Teleponnya?",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2188f6f3-6313-499c-a841-78e160d72fee.png' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/be4e4a27-abf4-4c16-9b5d-516ccb6a1c36.png' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/86197685-7ff1-43d5-8a01-ea244269349d.png' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a083b6fb-814f-4c33-8270-a0d7b2d631c4.png' },
+                            { val: 'E', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b59db74f-0906-41b0-a6a2-b3f188e81a3b.png' }
+                        ],
+                        correct: 'E'
+                    },
+                    {
+                        id: 'f4',
+                        code: 'F.04',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0f13ce1a-1090-4ac4-8428-6b2b4c3e8747.png",
+                        obsText: "Pecahkan kode ini menggunakan A=1, B=2, ... Z=26:",
+                        q: "Kata apa yang muncul?",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'SUARA' },
+                            { val: 'B', text: 'MAURA' },
+                            { val: 'C', text: 'TIARA' },
+                            { val: 'D', text: 'JUARA' },
+                            { val: 'E', text: 'LOMBA' }
+                        ],
+                        correct: 'D'
+                    },
+                    {
+                        id: 'f5',
+                        code: 'F.05',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/1de42ab6-5e01-42d5-b7e5-2e715e2a403c.png",
+                        obsText: "Perhatikan gambar berikut",
+                        q: "Warna apakah kotak dengan tulisan JUARA?",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'Hitam' },
+                            { val: 'B', text: 'Coklat' },
+                            { val: 'C', text: 'Merah' },
+                            { val: 'D', text: 'Orange' },
+                            { val: 'E', text: 'Hijau' }
+                        ],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'f6',
+                        code: 'F.06',
+                        obsImg: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0e2969a7-3b69-4fe1-ae72-e3abe3620666.png",
+                        obsText: "Wah, kotaknya dikunci! Angka yang terlihat adalah 6 4 8 7 3 0",
+                        q: "Ternyata urutan angkanya terbalik! Manakah kode yang tepat agar kuncinya dapat terbuka?",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', text: '073468', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: 'B', text: '037846', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: 'C', text: '307468', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: 'D', text: '073648', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' },
+                            { val: 'E', text: '038746', img: 'https://cdn-icons-png.flaticon.com/512/2489/2489659.png' }
+                        ],
+                        correct: 'B'
+                    }
+                ]
+            },
+            spatial: {
+                id: 'spatial',
+                name: 'Spasial',
+                themeClass: 'theme-spatial',
+                iconUrl: 'https://images2.imgbox.com/3c/83/9lMdHGy6_o.png',
+                instructions: '<ul class="text-left text-sm space-y-1 list-disc pl-5"><li>Tes ini terdiri dari 8 soal.</li><li>Total waktu keseluruhan tes adalah 6 menit.</li><li>Peserta memiliki waktu sekitar 45 detik untuk mengerjakan setiap soal.</li></ul>',
+                type: 'standard',
+                questions: [
+                    {
+                        id: 'v1',
+                        code: 'S.01',
+                        q: "Sebuah kertas persegi dilipat dua kali. Sebuah lubang kecil dipotong. Berapa banyak lubang saat dibuka?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7299b8c0-4cb9-453d-b32d-a844059fefe1.jpg",
+                        type: 'text-options',
+                        options: [{ val: 'A', text: '1' }, { val: 'B', text: '2' }, { val: 'C', text: '3' }, { val: 'D', text: '4' }],
+                        correct: 'D'
+                    },
+                    {
+                        id: 'v2',
+                        code: 'S.02',
+                        q: "Daerah Istimewa Yogyakarta terbagi menjadi 5 wilayah. Tio ingin mewarnai peta dengan syarat wilayah yang bersebelahan tidak boleh diwarnai dengan warna yang sama. Berapa jumlah paling sedikit warna yang dibutuhkan oleh Tio?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/ee51b612-8506-4fc3-82f8-5713f7e9c62a.jpg",
+                        type: 'text-options',
+                        options: [{ val: 'A', text: '1' }, { val: 'B', text: '2' }, { val: 'C', text: '3' }, { val: 'D', text: '4' }],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'v3',
+                        code: 'S.03',
+                        q: "Seekor ayam menghadap utara. Ia berputar balik ke arah kanan, lalu maju 2 langkah. Sekarang ia menghadap ke arah?",
+                        type: 'text-options',
+                        options: [{ val: 'A', text: 'Utara' }, { val: 'B', text: 'Selatan' }, { val: 'C', text: 'Barat' }, { val: 'D', text: 'Timur' }],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'v4',
+                        code: 'S.04',
+                        q: "Mobil berwarna biru sedang berkendara ke arah Timur Laut. Kemanakah arah mobil merah bergerak?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/feac472d-a4eb-4247-98c6-f32c65d1804c.jpg",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'Barat Daya' },
+                            { val: 'B', text: 'Barat Laut' },
+                            { val: 'C', text: 'Tenggara' },
+                            { val: 'D', text: 'Timur Laut' }
+                        ],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'v5',
+                        code: 'S.05',
+                        q: "Di manakah dari figur di bawah ini yang merupakan hasil rotasi dari obyek yang ada di gambar?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a6ddba41-b7a1-409d-a36d-3dd72ba1ea1d.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://images2.imgbox.com/dc/49/htDr4HFS_o.png' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/723e61d6-42c5-4ad5-b610-31e255d28373.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/00ee1b92-73c3-4d28-a941-f53e1f97b7a7.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/a0c5deb1-4383-46ca-bdee-c65e212cb645.jpg' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'v6',
+                        code: 'S.06',
+                        q: "Di manakah dari figur di bawah ini yang merupakan hasil rotasi dari obyek yang ada di gambar?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/8752e42b-a3b3-4d06-bd7d-04146a6fa286.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5e19e352-fc86-4dbf-b48f-1a1ccb041c87.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e76adb65-43fc-4642-80c8-aa7a5c5c329d.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c4bb5eef-e89e-49fe-8f44-fa1452d5932c.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/66940050-1860-44f4-90dd-be7d370b2591.jpg' }
+                        ],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'v7',
+                        code: 'S.07',
+                        q: "Di manakah potongan gambar di bawah ini yang merupakan potongan dari puzzle nomor 4?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4fa2c4f2-9583-49c2-8612-ff869953ff72.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/9c818123-0cba-414e-bec9-a42c316a843a.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/652ec131-2f35-4b2a-88b7-4d906cfec7f3.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/09b0ace2-b456-47cc-8586-72098b2e33e0.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/f03a3a32-5ffa-4f88-b03d-f44107e46994.jpg' }
+                        ],
+                        correct: 'D'
+                    },
+                    {
+                        id: 'v8',
+                        code: 'S.08',
+                        q: "Berapakah jumlah bangun datar yang menyerupai figur:?",
+                        imgTop: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/9d7fb61c-1845-4212-ba03-19d1b600f2ce.jpg",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6e188421-4874-45d1-be8c-e1ef96e9ed75.jpg",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '6' },
+                            { val: 'B', text: '7' },
+                            { val: 'C', text: '8' },
+                            { val: 'D', text: '9' }
+                        ],
+                        correct: 'D'
+                    }
+                ]
+            },
+            logical: {
+                id: 'logical',
+                name: 'Logika',
+                themeClass: 'theme-logical',
+                iconUrl: 'https://images2.imgbox.com/b9/f5/Xd01p3Pg_o.png',
+                instructions: '<ul class="text-left text-sm space-y-1 list-disc pl-5"><li>Tes ini terdiri dari 8 soal.</li><li>Total waktu keseluruhan tes adalah 6 menit.</li><li>Peserta memiliki waktu sekitar 45 detik untuk mengerjakan setiap soal.</li></ul>',
+                type: 'standard',
+                questions: [
+                    {
+                        id: 'l1',
+                        code: 'L.01',
+                        q: "Perhatikan gambar berikut! Manakah pilihan yang tepat untuk menyusun bangun yang terdapat di gambar?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7f919602-c046-4242-98b9-c2b1e6072cb1.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2dbe5bbb-00b9-4230-8134-51fdbf0d6f02.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c1c802db-81bc-4354-8e93-7e2a65eceb40.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c6d285c0-d01c-46d4-ac19-78beeeea63e2.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e6df8f2f-5814-474b-975d-3bacce3ca004.jpg' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'l2',
+                        code: 'L.02',
+                        q: "Jika kamu mau membuat layang-layang, langkah mana yang paling akhir dari prosesnya?",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'Membeli bambu di toko' },
+                            { val: 'B', text: 'Memotong kertas sesuai bentuk' },
+                            { val: 'C', text: 'Mengikat rangka bambu dengan benang' },
+                            { val: 'D', text: 'Menerbangkan layang-layang' }
+                        ],
+                        correct: 'D'
+                    },
+                    {
+                        id: 'l3',
+                        code: 'L.03',
+                        q: "Perhatikan pola berikut! Pola yang sesuai untuk gambar berikutnya adalah...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2047b644-b965-4de5-a8e0-832346cc29f0.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7eaecff4-f828-4ef0-8d81-810b79581dc5.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0813f220-7a16-4832-a534-c9df9be2323a.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3923cc98-2f63-431f-9972-18f919380050.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/bf812ad9-cb1a-4b98-b587-51e51d5123f6.jpg' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'l4',
+                        code: 'L.04',
+                        q: "Perhatikan gambar berikut! Temukan bentuk dan warna yang hilang!",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/3dfff4e3-6c66-4943-9855-b786e2f95915.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/7423ccbf-f122-4ad7-9a6b-91c45f168073.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/61b3516c-0c30-41e3-94db-f5d4252c2ffd.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/56bb13b8-8598-4dab-a449-fc43c5c8fbd8.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/637ac710-6223-4f87-b663-d4ee7635afb9.jpg' }
+                        ],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'l5',
+                        code: 'L.05',
+                        q: "Dari pilihan berikut, mana yang berbeda:",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/0e9a75bb-77a5-4854-98c7-d77c1468c697.jpg",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'Anjing' },
+                            { val: 'B', text: 'Kucing' },
+                            { val: 'C', text: 'Mobil' },
+                            { val: 'D', text: 'Burung' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'l6',
+                        code: 'L.06',
+                        q: "Terdapat tiga stempel tertutup yang diberi label A, B, dan C. Setiap stempel menghasilkan bentuk yang berbeda ketika dicetak:",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e5e1fd89-d5ff-4e1f-8faa-330d1fcd12e6.jpg",
+                        bottomText: "salah satu menghasilkan lingkaran,<br>satu lagi menghasilkan segitiga,<br>dan satu lagi menghasilkan persegi.<br>Namun bentuknya tidak terlihat sampai dicetak di kertas.<br><br>Ketika mencoba menggabungkan stempel dua-dua, muncul hasil sebagai berikut:<br><br><img src='https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/2174b0e8-d7d8-4480-9a7e-083a8d73cecc.jpg' class='w-full h-auto max-h-64 object-contain mx-auto border border-gray-300 rounded mb-4'><br>Bentuk apa yang dihasilkan oleh stempel A??",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'Trapesium' },
+                            { val: 'B', text: 'Lingkaran' },
+                            { val: 'C', text: 'Segitiga' },
+                            { val: 'D', text: 'Segiempat' }
+                        ],
+                        correct: 'D'
+                    },
+                    {
+                        id: 'l7',
+                        code: 'L.07',
+                        q: "Kala akan membuat kue! Menurut resep, arah panah menunjukkan bahan kue yang ditambahkan pada urutan berikutnya. Bahan apakah yang seharusnya dimasukkan pertama kali?",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/9a724437-87f1-4580-8241-5f68d2d76d26.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/cc51f74e-a17a-493e-8ab1-1b1745d8929a.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/b47ed665-6334-4f68-b53a-2f03c0ec2bd1.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/e9148bab-fbc8-4d4e-873a-06aad5d83cfd.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/95c50eb9-9b36-4b66-a353-d5adb9e5c03d.jpg' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'l8',
+                        code: 'L.08',
+                        q: "Suatu pagi di rumah Tio ada penculikan kucing. Polisi menemukan jejak sidik jari di depan pintu rumah. Ada 5 tersangka yang dicurigai sebagai penculiknya. Ayo kita sesuaikan sidik jarinya!",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/4e83eb2f-a534-458e-8e5c-b18fbaab22a7.jpg",
+                        type: 'img-options',
+                        options: [
+                            { val: 'A', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/5d1e4d2c-8091-4c13-b124-3cc8c001f516.jpg' },
+                            { val: 'B', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/1a19de22-5a3d-43c6-9b8c-3866735a6a82.jpg' },
+                            { val: 'C', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/db1ab325-bd0e-4223-8a81-22cb7b0c9695.jpg' },
+                            { val: 'D', img: 'https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/906a2bed-7978-400a-9666-f560345f5cea.jpg' }
+                        ],
+                        correct: 'B'
+                    }
+                ]
+            },
+            numerical: {
+                id: 'numerical',
+                name: 'Numerik',
+                themeClass: 'theme-numerical',
+                iconUrl: 'https://images2.imgbox.com/92/b7/Mv9OQdqx_o.png',
+                instructions: '<ul class="text-left text-sm space-y-1 list-disc pl-5"><li>Tes ini terdiri dari 8 soal.</li><li>Total waktu keseluruhan tes adalah 6 menit.</li><li>Peserta memiliki waktu sekitar 45 detik untuk mengerjakan setiap soal.</li></ul>',
+                type: 'standard',
+                questions: [
+                    {
+                        id: 'n1',
+                        code: 'N.01',
+                        q: "24 + 10 + 7 = ...",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '41' },
+                            { val: 'B', text: '42' },
+                            { val: 'C', text: '47' }
+                        ],
+                        correct: 'A'
+                    },
+                    {
+                        id: 'n2',
+                        code: 'N.02',
+                        q: "Perhatikan pola bilangan berikut: 17, ( ), 23, 26, ( ), 32. Bilangan yang tepat untuk mengisi secara berurutan adalah ...",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '21 dan 28' },
+                            { val: 'B', text: '20 dan 29' },
+                            { val: 'C', text: '22 dan 28' }
+                        ],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'n3',
+                        code: 'N.03',
+                        q: "Aisah memiliki 4 bungkus kacang. Tiap bungkus berisi 10 kacang. Nana memiliki 45 kacang. Siapa yang memiliki kacang paling banyak?",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: 'Aisah' },
+                            { val: 'B', text: 'Nana' },
+                            { val: 'C', text: 'Keduanya memiliki jumlah kacang yang sama' }
+                        ],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'n4',
+                        code: 'N.04',
+                        q: "Operator hitung agar nilai di sisi kiri sama dengan nilai di sisi kanan adalah ...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/8688e577-62d5-4b76-a431-f6c0f52293fd.jpg",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '+ dan -' },
+                            { val: 'B', text: '- dan +' },
+                            { val: 'C', text: '+ dan +' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'n5',
+                        code: 'N.05',
+                        q: "Bilangan yang 18 lebih kecil dari 55 adalah ...",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '27' },
+                            { val: 'B', text: '37' },
+                            { val: 'C', text: '53' }
+                        ],
+                        correct: 'B'
+                    },
+                    {
+                        id: 'n6',
+                        code: 'N.06',
+                        q: "Bilangan yang tepat untuk mengisi bagian yang kosong adalah ...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6402cc5a-ffef-436e-97ed-ae98900085e1.jpg",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '6 dan 8' },
+                            { val: 'B', text: '5 dan 7' },
+                            { val: 'C', text: '7 dan 7' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'n7',
+                        code: 'N.07',
+                        q: "Nilai A + B + C adalah ...",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/6fd1507f-b507-46fd-b360-323ff708d8b6.jpg",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '8' },
+                            { val: 'B', text: '7' },
+                            { val: 'C', text: '6' }
+                        ],
+                        correct: 'C'
+                    },
+                    {
+                        id: 'n8',
+                        code: 'N.08',
+                        q: "Perhatikan kumpulan angka di dalam kotak besar di bawah ini.",
+                        bottomText: "Jika seluruh bilangan pada setiap persegi kecil 2 × 2 dijumlahkan, hasil dari penjumlahan antara hasil terbesar dan hasil terkecil adalah ….<br><br><span class='text-sm text-gray-600'>clue: Setiap bilangan pada persegi kecil tidak ada yang terjumlah dua kali.</span>",
+                        img: "https://uob-1328237036.cos.ap-singapore.myqcloud.com//file-uploader/images/c3b0ba71-f25e-49df-9684-0f3f98d9fa71.jpg",
+                        type: 'text-options',
+                        options: [
+                            { val: 'A', text: '32' },
+                            { val: 'B', text: '42' },
+                            { val: 'C', text: '52' }
+                        ],
+                        correct: 'A'
+                    }
+                ]
+            }
+        };
+
+        // ==========================================
+        // APP LOGIC
+        // ==========================================
+
+        function playSound(id) {
+            const audio = document.getElementById(id);
+            if (audio) {
+                audio.currentTime = 0;
+                audio.play().catch(e => { });
+            }
+        }
+
+        function renderApp() {
+            const app = document.getElementById('app');
+            app.innerHTML = '';
+
+            // Update Theme Class on Body
+            document.body.className = 'min-h-screen flex flex-col items-center justify-center p-4'; // Reset
+            if (state.currentTestId && tests[state.currentTestId]) {
+                document.body.classList.add(tests[state.currentTestId].themeClass);
+            }
+
+            switch (state.screen) {
+                case 'welcome':
+                    app.innerHTML = `
+                        <div class="game-box p-4 md:p-8 text-center animate-fade-in max-w-2xl mx-auto relative">
+                            <h1 class="text-3xl md:text-5xl text-code-accent mb-4 leading-tight" style="color: var(--theme-primary); -webkit-text-stroke: 2px black;">CHAMPION'S<br>TEST</h1>
+                            <p class="mb-8 font-bold text-xl">Sekolah Dasar Edition</p>
+                            
+                            <div class="mt-4 mb-8">
+                                <p class="text-xs font-bold mb-2 uppercase tracking-widest text-gray-500">Supported by:</p>
+                                <div class="flex justify-center items-center space-x-6">
+                                    <img src="https://images2.imgbox.com/04/a6/9fxEcv76_o.png" class="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity">
+                                    <img src="https://images2.imgbox.com/45/21/LRosNxkr_o.png" class="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity">
+                                    <img src="https://images2.imgbox.com/6d/32/2rreDkMK_o.png" class="h-10 w-auto opacity-80 hover:opacity-100 transition-opacity">
+                                </div>
+                            </div>
+                            <button onclick="setScreen('student-info')" class="btn-arcade py-4 px-8 text-xl w-full sm:w-auto">
+                                MULAI
+                            </button>
+                        </div>
+                    `;
+                    break;
+
+                case 'student-info':
+                    app.innerHTML = `
+                        <div class="game-box p-4 md:p-8 max-w-md mx-auto">
+                            <h2 class="text-3xl mb-6 text-center" style="color: var(--theme-primary);">DATA PEMAIN</h2>
+                            <div class="space-y-4">
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-2">NAMA KAMU</label>
+                                    <input id="inp-name" type="text" class="w-full p-3 text-lg" placeholder="Contoh: Bintan Niaga Warsa"
+                                        onfocus="document.getElementById('name-tooltip').classList.remove('hidden')"
+                                        onblur="document.getElementById('name-tooltip').classList.add('hidden')">
+                                    
+                                    <!-- Tooltip -->
+                                    <div id="name-tooltip" class="hidden absolute left-0 -top-10 bg-yellow-300 border-2 border-black p-2 rounded shadow-[4px_4px_0px_rgba(0,0,0,1)] z-10 transition-all">
+                                        <p class="text-xs font-bold text-black whitespace-nowrap">Masukkan Nama lengkap kamu ya</p>
+                                        <!-- Arrow -->
+                                        <div class="absolute -bottom-2 left-6 w-3 h-3 bg-yellow-300 border-r-2 border-b-2 border-black transform rotate-45"></div>
+                                    </div>
+                                </div>
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-2">NAMA SEKOLAH</label>
+                                    <input id="inp-school" type="text" class="w-full p-3 text-lg" placeholder="Contoh: SMA Negeri 1"
+                                        onfocus="document.getElementById('school-tooltip').classList.remove('hidden')"
+                                        onblur="document.getElementById('school-tooltip').classList.add('hidden')">
+                                    
+                                    <!-- Tooltip -->
+                                    <div id="school-tooltip" class="hidden absolute left-0 -top-10 bg-yellow-300 border-2 border-black p-2 rounded shadow-[4px_4px_0px_rgba(0,0,0,1)] z-10 transition-all">
+                                        <p class="text-xs font-bold text-black whitespace-nowrap">Masukkan nama sekolah kamu</p>
+                                        <!-- Arrow -->
+                                        <div class="absolute -bottom-2 left-6 w-3 h-3 bg-yellow-300 border-r-2 border-b-2 border-black transform rotate-45"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">KELAS</label>
+                                    <select id="inp-class" class="w-full p-3 text-lg bg-white border border-gray-300 rounded">
+                                        <option value="" disabled selected>Pilih Kelas</option>
+                                        <option value="1 SD">1 SD</option>
+                                        <option value="2 SD">2 SD</option>
+                                        <option value="3 SD">3 SD</option>
+                                        <option value="4 SD">4 SD</option>
+                                        <option value="5 SD">5 SD</option>
+                                        <option value="6 SD">6 SD</option>
+                                    </select>
+                                </div>
+                                <div class="relative">
+                    <label class="block text-sm font-bold mb-2">NOMOR HP ORANG TUA</label>
+                    <input id="inp-phone" type="text" class="w-full p-3 text-lg" placeholder="Contoh: 628123456789" value="62" oninput="handlePhoneInput(this)">
+                    <p class="text-xs text-gray-600 mt-1">*Dimulai dengan 62, total 10-13 digit</p>
+                    
+                    <!-- Warning Tooltip -->
+                    <div id="phone-warning" class="hidden absolute left-0 -top-12 bg-red-500 border-2 border-black p-2 rounded shadow-[4px_4px_0px_rgba(0,0,0,1)] z-20 transition-all">
+                        <p class="text-xs font-bold text-white whitespace-nowrap">Nomor HP harus 10-13 digit (termasuk 62)</p>
+                        <!-- Arrow -->
+                        <div class="absolute -bottom-2 left-6 w-3 h-3 bg-red-500 border-r-2 border-b-2 border-black transform rotate-45"></div>
+                    </div>
+                </div>
+                                <div class="relative">
+                                    <label class="block text-sm font-bold mb-2">EMAIL</label>
+                                    <input id="inp-email" type="email" class="w-full p-3 text-lg" placeholder="Contoh: email@domain.com"
+                                        onfocus="document.getElementById('email-tooltip').classList.remove('hidden')"
+                                        onblur="document.getElementById('email-tooltip').classList.add('hidden')">
+                                    
+                                    <!-- Info Tooltip -->
+                                    <div id="email-tooltip" class="hidden absolute left-0 -top-12 bg-blue-500 border-2 border-black p-2 rounded shadow-[4px_4px_0px_rgba(0,0,0,1)] z-20 transition-all">
+                                        <p class="text-xs font-bold text-white whitespace-nowrap">*Isi dengan e-mail yang sama saat Registrasi</p>
+                                        <!-- Arrow -->
+                                        <div class="absolute -bottom-2 left-6 w-3 h-3 bg-blue-500 border-r-2 border-b-2 border-black transform rotate-45"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start space-x-2 mt-4">
+                                    <input id="inp-terms" type="checkbox" class="w-6 h-6 mt-1 accent-pink-500">
+                                    <label for="inp-terms" class="text-sm leading-tight">
+                                        Saya setuju pada <a href="https://www.ruangguru.com/terms-conditions?referralCookiesId=51caf2d0-3d50-43e1-97ff-43aa10e071fc" target="_blank" class="text-blue-600 underline">Syarat dan Ketentuan</a> serta <a href="https://www.ruangguru.com/privacy-policy?referralCookiesId=51caf2d0-3d50-43e1-97ff-43aa10e071fc" target="_blank" class="text-blue-600 underline">Kebijakan Privasi</a> yang berlaku.
+                                    </label>
+                                </div>
+                                <button id="btn-submit" onclick="saveStudentInfo()" class="btn-arcade py-3 px-6 w-full mt-4">
+                    SIMPAN & MULAI
+                </button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                /* MENU REMOVED FOR CONTINUOUS FLOW */
+
+                case 'how-to-play':
+                    app.innerHTML = `
+                        <div class="game-box p-4 md:p-8 max-w-2xl mx-auto animate-fade-in">
+                            <h2 class="text-3xl md:text-4xl mb-6 text-center" style="color: var(--theme-primary);">Petunjuk Test</h2>
+                            
+                            <div class="bg-white p-6 rounded-xl border-2 border-black shadow-md space-y-4 text-left mb-8">
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">🚫</span>
+                                    <p class="font-bold">Tes ini tidak bisa kembali ke halaman sebelumnya (No Back Button).</p>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">🔄</span>
+                                    <p class="font-bold">Kerjakan sampai selesai, jangan di-refresh atau di-reset.</p>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">💪</span>
+                                    <p class="font-bold">Kerjakan sendiri untuk mengukur kemampuanmu yang sesungguhnya.</p>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">⏩</span>
+                                    <p class="font-bold">Jika merasa sudah siap, kamu bisa lanjut walau waktu observasi belum habis.</p>
+                                </div>
+                                <div class="flex items-start space-x-3">
+                                    <span class="text-2xl">✅</span>
+                                    <p class="font-bold">Jika sudah yakin dengan jawaban, klik tombol LANJUT untuk ke soal berikutnya.</p>
+                                </div>
+                            </div>
+
+                            <button onclick="startTestIntro('focus')" class="btn-arcade py-4 px-8 text-xl w-full sm:w-auto bg-green-400 text-white border-green-700 hover:bg-green-500">
+                                MULAI SEKARANG ▶
+                            </button>
+                        </div>
+                    `;
+                    break;
+
+                case 'test-intro':
+                    const test = tests[state.currentTestId];
+                    app.innerHTML = `
+                        <div class="game-box p-4 md:p-8 text-center animate-fade-in max-w-lg mx-auto">
+                            <div class="mb-6 animate-bounce inline-block">
+                                <img src="${test.iconUrl}" style="width: 180px; height: auto; display: block; margin: 0 auto;">
+                            </div>
+                            <h2 class="text-2xl md:text-4xl mb-2" style="color: var(--theme-primary);">${test.name.toUpperCase()}</h2>
+                            <p class="mb-8 font-bold text-lg">${test.instructions}</p>
+                            <button onclick="startTest('${test.id}')" class="btn-arcade py-3 px-6 text-lg">
+                                MULAI MISI
+                            </button>
+                        </div>
+                    `;
+                    break;
+
+                case 'test-memory-sequence':
+                    renderMemorySequence();
+                    break;
+
+                case 'test-active':
+                    renderQuestion();
+                    break;
+
+                case 'final-submit':
+                    app.innerHTML = `
+                        <div class="game-box p-6 md:p-10 max-w-2xl w-full bg-white animate-fade-in text-center mx-auto">
+                            <h1 class="text-3xl md:text-4xl font-arcade text-yellow-400 mb-6 text-stroke">TERIMA KASIH!</h1>
+                            <p class="text-lg md:text-xl font-bold text-gray-700 mb-4">
+                                Terima kasih sudah mengerjakan Champions Test.
+                            </p>
+                            <p class="text-lg md:text-xl text-gray-600 mb-8">
+                                Selanjutnya tim Ruangguru akan menghubungi kamu untuk memberikan hasil lengkap nya!
+                            </p>
+                            
+                            <div class="border-t-2 border-gray-200 pt-6 mt-6">
+                                <p class="text-sm font-bold text-gray-500 mb-2">Jika punya pertanyaan, silakan hubungi kami</p>
+                                <div class="flex items-center justify-center space-x-2 text-green-600 font-bold text-xl">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                    </svg>
+                                    <span>0812-1222-9300</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'champion-reveal':
+                    if (!state.results) return;
+
+                    app.innerHTML = `
+                        <div class="game-box p-4 md:p-8 max-w-2xl w-full bg-white animate-fade-in mx-auto text-center relative overflow-hidden">
+                            <!-- Background Pattern -->
+                            <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#FFD700 2px, transparent 2px); background-size: 20px 20px;"></div>
+                            
+                            <div class="relative z-10">
+                                <h1 class="text-3xl md:text-4xl font-arcade text-yellow-400 mb-2 text-stroke">CONGRATULATIONS!</h1>
+                                <p class="text-xl text-gray-600 mb-6 font-bold">${state.student.name || 'Student'}</p>
+
+                                <div id="champion-result" class="mb-6">
+                                    <p class="text-lg text-gray-500 mb-2 font-bold">Kamu adalah seorang</p>
+                                    <h2 class="text-3xl md:text-4xl font-arcade text-purple-700 mb-4 tracking-wide drop-shadow-sm">${state.results.category.toUpperCase()}</h2>
+                                    
+                                    <img src="${state.results.image}" alt="Champion Character"
+                                        class="w-56 h-56 mx-auto mb-4 object-contain animate-bounce-slow drop-shadow-lg">
+                                    
+                                    <div class="bg-yellow-100 border-2 border-yellow-400 p-4 rounded-xl shadow-sm max-w-md mx-auto">
+                                        <p class="text-lg font-bold text-gray-800 italic">"${state.results.desc}"</p>
+                                    </div>
+                                </div>
+
+                                <div class="mt-8 mb-8">
+                                    <p class="text-xs font-bold mb-3 uppercase tracking-widest text-gray-500">Supported by:</p>
+                                    <div class="flex flex-wrap justify-center items-center gap-4 md:gap-8 bg-white/50 p-4 rounded-xl backdrop-blur-sm border-2 border-white/50 inline-block shadow-sm w-full">
+                                        <img src="https://images2.imgbox.com/04/a6/9fxEcv76_o.png" class="h-8 md:h-12 w-auto hover:scale-110 transition-transform duration-300">
+                                        <img src="https://images2.imgbox.com/45/21/LRosNxkr_o.png" class="h-8 md:h-12 w-auto hover:scale-110 transition-transform duration-300">
+                                        <img src="https://images2.imgbox.com/6d/32/2rreDkMK_o.png" class="h-8 md:h-12 w-auto hover:scale-110 transition-transform duration-300">
+                                    </div>
+                                </div>
+
+                                <button onclick="finishSubmit()" class="btn-arcade py-3 px-8 text-xl w-full sm:w-auto bg-green-400 text-white border-green-700 hover:bg-green-500">
+                                    SELESAI
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        function setScreen(screenName) {
+            state.screen = screenName;
+            renderApp();
+            if (screenName === 'welcome') playSound('sfx-click');
+        }
+
+        function showModal(message) {
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            playSound('sfx-click'); // Or sfx-wrong if available
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+            playSound('sfx-click');
+        }
+
+        function handlePhoneInput(input) {
+            // 1. Lock "62" prefix
+            if (!input.value.startsWith('62')) {
+                input.value = '62' + input.value.replace(/^62/, '');
+            }
+
+            // 2. Ensure only numbers
+            input.value = input.value.replace(/[^0-9]/g, '');
+
+            // 3. Length Validation (10-13 digits total)
+            const warningEl = document.getElementById('phone-warning');
+            if (input.value.length > 14) {
+                warningEl.classList.remove('hidden');
+                input.classList.add('border-red-500');
+            } else {
+                warningEl.classList.add('hidden');
+                input.classList.remove('border-red-500');
+            }
+        }
+
+        function saveStudentInfo() {
+            const name = document.getElementById('inp-name').value.trim();
+            const school = document.getElementById('inp-school').value.trim();
+            const grade = document.getElementById('inp-class').value;
+            const phone = document.getElementById('inp-phone').value;
+            const email = document.getElementById('inp-email').value.trim();
+            const terms = document.getElementById('inp-terms').checked;
+            const submitBtn = document.getElementById('btn-submit');
+
+            // Basic field validation
+            if (!name || !school || !grade || !phone || !email) {
+                showModal("Mohon isi semua data!");
+                return;
+            }
+
+            // Name validation (minimum 3 characters)
+            if (name.length < 3) {
+                showModal("Nama harus minimal 3 karakter!");
+                return;
+            }
+
+            // School validation (minimum 3 characters)
+            if (school.length < 3) {
+                showModal("Nama sekolah harus minimal 3 karakter!");
+                return;
+            }
+
+            // Email Validation (more robust)
+            const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                showModal("Mohon masukkan format email yang valid! (contoh: nama@email.com)");
+                return;
+            }
+
+            // Phone Validation (10-13 digits including 62)
+            if (phone.length < 10 || phone.length > 13) {
+                showModal("Nomor HP harus 10-13 digit (termasuk 62)!");
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-disabled');
+            submitBtn.innerHTML = 'MEMPROSES...';
+
+            // Save data
+            state.student.name = name;
+            state.student.school = school;
+            state.student.class = grade;
+            state.student.parentPhone = phone;
+            state.student.email = email;
+            state.student.termsAccepted = terms;
+            playSound('sfx-click');
+
+            // Small delay for better UX
+            setTimeout(() => {
+                // GO TO HOW TO PLAY SCREEN
+                setScreen('how-to-play');
+            }, 500);
+        }
+
+        function startTestIntro(testId) {
+            state.currentTestId = testId;
+            setScreen('test-intro');
+        }
+
+        function startGlobalTimer(duration) {
+            if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
+            state.testTimeLeft = duration;
+
+            globalTestInterval = setInterval(() => {
+                state.testTimeLeft--;
+                const timerDisplay = document.getElementById('q-timer');
+                if (timerDisplay) {
+                    timerDisplay.innerText = state.testTimeLeft + 's';
+                }
+
+                if (state.testTimeLeft <= 0) {
+                    clearInterval(globalTestInterval);
+                    completeTest();
+                }
+            }, 1000);
+        }
+
+        function startTest(testId) {
+            state.currentTestId = testId;
+            state.currentQuestionIndex = 0;
+            state.currentSelection = null; // Reset selection
+            state.screen = 'test-active';
+
+            const test = tests[testId];
+
+            // Global Timer for Numeric, Logic, Spatial (6 minutes = 360s)
+            if (['numerical', 'logical', 'spatial'].includes(testId)) {
+                startGlobalTimer(360);
+            }
+
+            if (test.type === 'memory-sequence') {
+                renderMemorySequence();
+            } else if (test.type === 'observation-mode') {
+                renderObservationPhase();
+            } else {
+                renderQuestion();
+            }
+        }
+
+        // --- MEMORY TEST LOGIC ---
+        function renderMemorySequence() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div id="mem-container" class="flex flex-col items-center justify-center h-screen">
+                    <h1 class="text-6xl md:text-8xl font-arcade text-white mb-4" style="-webkit-text-stroke: 3px black;">3</h1>
+                    <p class="font-bold text-xl md:text-2xl bg-white px-6 py-3 border-4 border-black rounded-full shadow-lg">HAFALKAN!</p>
+                </div>
+            `;
+
+            let count = 3;
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    document.querySelector('#mem-container h1').innerText = count;
+                } else {
+                    clearInterval(interval);
+                    startGridMemoryTest();
+                }
+            }, 1000);
+            state.timers.push(interval);
+        }
+
+        function startGridMemoryTest() {
+            const app = document.getElementById('app');
+            // 5x4 Grid for 20 items
+            let gridHtml = `
+                <div class="flex flex-col items-center w-full max-w-6xl mx-auto animate-fade-in">
+                    <div class="flex justify-between w-full items-end mb-4 px-4">
+                        <div class="font-arcade text-2xl text-white" style="-webkit-text-stroke: 1px black;">GRID MEMORI</div>
+                        <div class="font-bold text-3xl bg-white px-4 py-2 border-4 border-black rounded-xl shadow-md" id="mem-timer">25</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 md:grid-cols-5 gap-2 w-full">
+            `;
+
+            state.memoryItems.forEach((imgSrc, index) => {
+                gridHtml += `
+                    <div class="flip-container aspect-square w-full">
+                        <div class="flipper w-full h-full flip-active" id="mem-card-${index}">
+                            <div class="front bg-white p-1 rounded-xl shadow-md border-2 border-black flex items-center justify-center">
+                                <img src="${imgSrc}" class="w-full h-full object-cover rounded-lg">
+                            </div>
+                            <div class="back rounded-xl border-2 border-black bg-pink-400 flex items-center justify-center">
+                                <span class="font-arcade text-white text-3xl">?</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            gridHtml += `</div></div>`;
+            app.innerHTML = gridHtml;
+
+            // Start timer and sequence concurrently
+            startTimer();
+            runFlipSequence();
+        }
+
+        function runFlipSequence() {
+            let i = 0;
+            const totalItems = state.memoryItems.length;
+
+            const interval = setInterval(() => {
+                if (i >= totalItems) {
+                    clearInterval(interval);
+                    return;
+                }
+
+                const currentIndex = i;
+                const card = document.getElementById(`mem-card-${currentIndex}`);
+
+                // 1. Reveal
+                if (card) {
+                    card.classList.remove('flip-active');
+                    playSound('sfx-click');
+                }
+
+                // 2. Hide after 1s
+                setTimeout(() => {
+                    if (card) card.classList.add('flip-active');
+                }, 1000);
+
+                i++;
+            }, 1200); // 1.2 seconds per card
+            state.timers.push(interval);
+        }
+
+        function startTimer() {
+            let timeLeft = 25;
+            const timerEl = document.getElementById('mem-timer');
+
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timerEl) timerEl.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    state.currentQuestionIndex = 0;
+                    state.screen = 'test-active';
+
+                    // Start Global Timer for Memory Test (5 minutes = 300s)
+                    startGlobalTimer(300);
+
+                    renderApp();
+                }
+            }, 1000);
+            state.timers.push(timerInterval);
+        }
+
+        // --- OBSERVATION MODE LOGIC ---
+
+        function renderObservationPhase() {
+            // Auto-scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            state.observationPhase = true;
+            const test = tests[state.currentTestId];
+            const question = test.questions[state.currentQuestionIndex];
+            const app = document.getElementById('app');
+
+            let timeLeft = 40;
+
+            app.innerHTML = `
+                <div class="game-box p-4 md:p-8 text-center animate-fade-in max-w-4xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl md:text-3xl" style="color: var(--theme-primary);">FASE OBSERVASI</h2>
+                        <div id="obs-timer" class="text-2xl md:text-4xl font-bold bg-white px-4 py-2 border-4 border-black rounded-xl shadow-md">${timeLeft}s</div>
+                    </div>
+                    <div class="mb-6 border-4 border-black rounded-xl overflow-hidden bg-white">
+                        <img src="${question.obsImg}" class="w-full h-auto object-contain max-h-[60vh]">
+                    </div>
+                    <p class="text-xl font-bold">${question.obsText || 'Perhatikan gambar ini baik-baik!'}</p>
+                    
+                    <button onclick="skipObservation()" class="btn-arcade py-3 px-8 text-xl mt-6 bg-green-400 hover:bg-green-500 text-white border-green-700">
+                        SAYA SUDAH SIAP ▶
+                    </button>
+                </div>
+            `;
+
+            clearInterval(obsTimerInterval);
+            obsTimerInterval = setInterval(() => {
+                timeLeft--;
+                const timerDisplay = document.getElementById('obs-timer');
+                if (timerDisplay) timerDisplay.innerText = timeLeft + 's';
+
+                if (timeLeft <= 0) {
+                    clearInterval(obsTimerInterval);
+                    renderObservationQuestion();
+                }
+            }, 1000);
+        }
+
+        function skipObservation() {
+            clearInterval(obsTimerInterval);
+            // Auto-scroll to top before showing question
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            renderObservationQuestion();
+        }
+
+        function renderObservationQuestion() {
+            state.observationPhase = false;
+            const test = tests[state.currentTestId];
+            const question = test.questions[state.currentQuestionIndex];
+            const total = test.questions.length;
+            const app = document.getElementById('app');
+
+            let timeLeft = 20;
+
+            // Reuse generic render logic but add timer
+            let qImgHTML = '';
+            if (question.img) {
+                qImgHTML = `<div class="w-full h-64 flex items-center justify-center mb-4 bg-gray-50 rounded border-2 border-dashed border-gray-300"><img src="${question.img}" class="max-w-full max-h-full object-contain p-1"></div>`;
+            }
+
+            let optionsHTML = '';
+            if (question.type === 'text-options') {
+                optionsHTML = '<div class="grid grid-cols-1 gap-3">';
+                question.options.forEach((opt, index) => {
+                    let text = opt;
+                    let val = String.fromCharCode(65 + index); // Default A, B, C...
+
+                    if (typeof opt === 'object' && opt !== null) {
+                        text = opt.text;
+                        val = opt.val;
+                    }
+
+                    const isSelected = state.currentSelection === val ? 'selected-answer' : '';
+                    const safeOpt = text.replace(/"/g, '&quot;');
+                    optionsHTML += '<button onclick="selectAnswer(this.getAttribute(\'data-val\'))" class="btn-arcade bg-white text-black hover:bg-yellow-300 py-4 px-6 text-left font-bold border-2 border-black text-lg min-h-[80px] flex items-center ' + isSelected + '" data-val="' + val + '"><span class="mr-4 font-bold text-xl">' + val + '.</span>' + text + '</button>';
+                });
+                optionsHTML += '</div>';
+            } else if (question.type === 'img-options') {
+                optionsHTML = '<div class="grid grid-cols-2 md:grid-cols-5 gap-2">';
+                question.options.forEach(opt => {
+                    const val = opt.val || opt;
+                    const text = opt.text || '';
+                    const imgSrc = opt.img || '';
+                    const imgHTML = imgSrc ? '<img src="' + imgSrc + '" class="w-full h-auto mb-2 rounded">' : '';
+                    const isSelected = state.currentSelection === val ? 'selected-answer' : '';
+                    const safeVal = val.replace(/"/g, '&quot;');
+
+                    optionsHTML += '<button onclick="selectAnswer(this.getAttribute(\'data-val\'))" class="btn-arcade bg-white hover:bg-yellow-300 p-2 border-2 border-black flex flex-col items-center justify-center ' + isSelected + '" data-val="' + safeVal + '">' +
+                        imgHTML +
+                        (text ? '<span class="font-bold text-lg mb-1 bg-white px-2 border border-black rounded">' + text + '</span>' : '') +
+                        '<span class="font-bold text-xl">' + val + '</span>' +
+                        '</button>';
+                });
+                optionsHTML += '</div>';
+            }
+
+            const nextBtnState = state.currentSelection ? '' : 'btn-disabled';
+
+            app.innerHTML = `
+                <div class="game-box p-4 md:p-6 w-full animate-fade-in max-w-3xl mx-auto min-h-[600px] flex flex-col justify-between">
+                    <div class="flex justify-between items-end mb-2 font-bold text-sm uppercase tracking-widest" style="color: var(--theme-primary);">
+                        <span>${test.name}</span>
+                        <span>Soal ${state.currentQuestionIndex + 1} / ${total}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-full bg-gray-200 h-4 rounded-full mr-4 overflow-hidden border-2 border-black">
+                            <div class="h-full transition-all duration-500 ease-out" style="width: ${((state.currentQuestionIndex + 1) / total) * 100}%; background: var(--theme-primary);"></div>
+                        </div>
+                        <div class="text-2xl font-bold bg-white px-3 py-1 border-2 border-black rounded shadow-sm text-red-500" id="q-timer">${timeLeft}s</div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-2xl font-bold mb-4 font-arcade">${question.q}</h3>
+                        ${qImgHTML}
+                    </div>
+
+                    ${optionsHTML}
+
+                    <div class="mt-6 flex justify-end">
+                        <button id="btn-next-q" onclick="nextQuestion()" class="btn-arcade py-3 px-8 text-xl ${nextBtnState}">
+                            LANJUT ▶
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            clearInterval(obsTimerInterval);
+            obsTimerInterval = setInterval(() => {
+                timeLeft--;
+                const timerDisplay = document.getElementById('q-timer');
+                if (timerDisplay) timerDisplay.innerText = timeLeft + 's';
+
+                if (timeLeft <= 0) {
+                    clearInterval(obsTimerInterval);
+                    // Time out - auto advance
+                    state.currentSelection = 'TIMEOUT';
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        // --- GENERIC QUESTION RENDERER ---
+        function renderQuestion() {
+            const test = tests[state.currentTestId];
+            const question = test.questions[state.currentQuestionIndex];
+            const total = test.questions.length;
+
+            if (!state.answers[state.currentTestId]) state.answers[state.currentTestId] = {};
+
+            const app = document.getElementById('app');
+
+            let qImgTopHTML = '';
+            if (question.imgTop) {
+                qImgTopHTML = '<div class="w-full h-64 flex items-center justify-center mb-4 bg-gray-50 rounded border-2 border-dashed border-gray-300"><img src="' + question.imgTop + '" class="max-w-full max-h-full object-contain p-1"></div>';
+            }
+
+            let qImgHTML = '';
+            if (question.img) {
+                if (Array.isArray(question.img)) {
+                    qImgHTML = '<div class="flex flex-col items-center mb-4 space-y-2">';
+                    question.img.forEach(imgSrc => {
+                        qImgHTML += '<img src="' + imgSrc + '" class="max-w-full h-auto max-h-64 border border-code-accent shadow-lg bg-gray-900 p-1">';
+                    });
+                    qImgHTML += '</div>';
+                } else {
+                    qImgHTML = '<div class="w-full h-64 flex items-center justify-center mb-4 bg-gray-50 rounded border-2 border-dashed border-gray-300"><img src="' + question.img + '" class="max-w-full max-h-full object-contain p-1"></div>';
+                }
+            }
+
+            let optionsHTML = '';
+            if (question.type === 'text-options') {
+                optionsHTML = '<div class="grid grid-cols-1 gap-3">';
+                question.options.forEach((opt, index) => {
+                    let text = opt;
+                    let val = String.fromCharCode(65 + index); // Default A, B, C...
+
+                    if (typeof opt === 'object' && opt !== null) {
+                        text = opt.text;
+                        val = opt.val;
+                    }
+
+                    const isSelected = state.currentSelection === val ? 'selected-answer' : '';
+                    const safeOpt = text.replace(/"/g, '&quot;');
+                    optionsHTML += '<button onclick="selectAnswer(this.getAttribute(\'data-val\'))" class="btn-arcade bg-white text-black hover:bg-yellow-300 py-4 px-6 text-left font-bold border-2 border-black text-lg min-h-[80px] flex items-center ' + isSelected + '" data-val="' + val + '"><span class="mr-4 font-bold text-xl">' + val + '.</span>' + text + '</button>';
+                });
+                optionsHTML += '</div>';
+            } else if (question.type === 'img-only' || question.type === 'img-options') {
+                optionsHTML = '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                question.options.forEach(opt => {
+                    const imgSrc = opt.img || opt;
+                    const val = opt.val || opt;
+                    const isSelected = state.currentSelection === val ? 'selected-answer' : '';
+                    const safeVal = val.replace(/"/g, '&quot;');
+                    optionsHTML += '<button onclick="selectAnswer(this.getAttribute(\'data-val\'))" class="btn-arcade bg-white hover:bg-yellow-300 p-3 border-2 border-black flex flex-col items-center ' + isSelected + '" data-val="' + safeVal + '">' +
+                        '<img src="' + imgSrc + '" class="w-full h-48 object-contain mb-2 bg-gray-100 border border-gray-300 rounded">' +
+                        '<span class="font-bold text-xl">' + val + '</span>' +
+                        '</button>';
+                });
+                optionsHTML += '</div>';
+            }
+
+            const nextBtnState = state.currentSelection ? '' : 'btn-disabled';
+
+            app.innerHTML = `
+                <div class="game-box p-4 md:p-6 w-full animate-fade-in max-w-3xl mx-auto">
+                    <div class="flex justify-between items-end mb-2 font-bold text-sm uppercase tracking-widest" style="color: var(--theme-primary);">
+                        <span>${test.name}</span>
+                        <span>Soal ${state.currentQuestionIndex + 1} / ${total}</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="w-full bg-gray-200 h-4 rounded-full mr-4 overflow-hidden border-2 border-black">
+                            <div class="h-full transition-all duration-500 ease-out" style="width: ${((state.currentQuestionIndex + 1) / total) * 100}%; background: var(--theme-primary);"></div>
+                        </div>
+
+                        ${['memory', 'numerical', 'logical', 'spatial'].includes(test.id) ? `<div class="text-2xl font-bold bg-white px-3 py-1 border-2 border-black rounded shadow-sm text-red-500" id="q-timer">${state.testTimeLeft}s</div>` : ''}
+                    </div>
+                    
+                    <div class="mb-6">
+                        ${qImgTopHTML}
+                        <h3 class="text-2xl font-bold mb-4 font-arcade">${question.q}</h3>
+                        ${qImgHTML}
+                        ${question.bottomText ? `<div class="text-lg font-bold mb-4">${question.bottomText}</div>` : ''}
+                    </div>
+
+                    ${optionsHTML}
+
+                    <div class="mt-6 flex justify-end">
+                        <button id="btn-next-q" onclick="nextQuestion()" class="btn-arcade py-3 px-8 text-xl ${nextBtnState}">
+                            LANJUT ▶
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Auto-scroll to top when rendering new question
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (window.MathJax) window.MathJax.typesetPromise();
+        }
+
+
+
+        function selectAnswer(val) {
+            // Prevent rapid clicking
+            if (isProcessing) return;
+
+            // Update state
+            state.currentSelection = val;
+
+            // Update UI
+            // 1. Highlight selected button
+            const buttons = document.querySelectorAll('button[data-val]');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('data-val') === val) {
+                    btn.classList.add('selected-answer');
+                } else {
+                    btn.classList.remove('selected-answer');
+                }
+            });
+
+            // 2. Enable Next Button
+            const nextBtn = document.getElementById('btn-next-q');
+            if (nextBtn) {
+                nextBtn.classList.remove('btn-disabled');
+            }
+
+            playSound('sfx-click');
+        }
+
+        function nextQuestion() {
+            // Prevent rapid clicking and ensure answer is selected
+            if (isProcessing) return;
+            if (!state.currentSelection && state.currentSelection !== 0) return;
+
+            // Set processing flag
+            isProcessing = true;
+
+            // Disable next button to prevent double-click
+            const nextBtn = document.getElementById('btn-next-q');
+            if (nextBtn) {
+                nextBtn.classList.add('btn-disabled');
+                nextBtn.innerHTML = 'MEMPROSES...';
+            }
+
+            // Clear any timers if needed (though we keep global timer running)
+            if (obsTimerInterval) clearInterval(obsTimerInterval);
+
+            const test = tests[state.currentTestId];
+            const q = test.questions[state.currentQuestionIndex];
+
+            // Save Answer
+            if (!state.answers[state.currentTestId]) {
+                state.answers[state.currentTestId] = {};
+            }
+            state.answers[state.currentTestId][q.id] = state.currentSelection;
+
+            // Reset Selection
+            state.currentSelection = null;
+
+            // Small delay for better UX
+            setTimeout(() => {
+                // Advance
+                if (state.currentQuestionIndex < test.questions.length - 1) {
+                    state.currentQuestionIndex++;
+                    if (test.type === 'observation-mode') {
+                        renderObservationPhase();
+                    } else {
+                        renderQuestion();
+                    }
+                } else {
+                    completeTest();
+                }
+
+                // Reset processing flag
+                isProcessing = false;
+            }, 300);
+        }
+
+        function completeTest() {
+            if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
+            state.completedTests.push(state.currentTestId);
+            playSound('sfx-correct');
+
+            // SEQUENTIAL LOGIC: Focus -> Memory -> Numerical -> Logical -> Spatial -> Finish
+            const sequence = ['focus', 'memory', 'numerical', 'logical', 'spatial'];
+            const currentIndex = sequence.indexOf(state.currentTestId);
+
+            if (currentIndex !== -1 && currentIndex < sequence.length - 1) {
+                const nextTestId = sequence[currentIndex + 1];
+                startTestIntro(nextTestId);
+            } else {
+                submitAllData();
+            }
+        }
+
+        // --- DATA SUBMISSION (SIMULATED) ---
+
+        async function submitAllData() {
+            const app = document.getElementById('app');
+            // Show loading state
+            const activeScreen = document.getElementById('screen-test-active');
+            if (activeScreen) activeScreen.classList.add('hidden');
+
+            const memoryScreen = document.getElementById('screen-test-memory-sequence');
+            if (memoryScreen) memoryScreen.classList.add('hidden');
+
+            const finalSubmitScreen = document.getElementById('screen-final-submit');
+            if (finalSubmitScreen) {
+                finalSubmitScreen.classList.remove('hidden');
+                finalSubmitScreen.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-64">
+                    <div class="loader mb-6"></div>
+                    <p class="font-arcade text-yellow-400 text-xl blink">CALCULATING SCORE...</p>
+                </div>
+            `;
+            }
+
+            // Transform Data & Calculate Scores
+            const transformedData = {};
+
+            // Calculate Section Scores
+            let correctCounts = {
+                focus: 0,
+                memory: 0,
+                numerical: 0,
+                logical: 0,
+                spatial: 0
+            };
+
+            // Iterate through all tests and questions
+            Object.values(tests).forEach(test => {
+                test.questions.forEach(q => {
+                    if (q.code) {
+                        // Get User Answer
+                        const userAnswer = (state.answers[test.id] && state.answers[test.id][q.id]) || '';
+
+                        // Calculate Point (1 for correct, 0 for wrong)
+                        let point = 0;
+                        if (userAnswer === q.correct) {
+                            point = 1;
+                            // Increment correct count for the specific test type
+                            // Mapping test IDs to score categories
+                            if (test.id === 'focus') correctCounts.focus++;
+                            if (test.id === 'memory') correctCounts.memory++;
+                            if (test.id === 'numerical') correctCounts.numerical++;
+                            if (test.id === 'logical') correctCounts.logical++;
+                            if (test.id === 'spatial') correctCounts.spatial++;
+                        }
+
+                        // Add to flat object
+                        transformedData[q.code] = userAnswer;
+                        transformedData[`Poin ${q.code}`] = point;
+                    }
+                });
+            });
+
+            // Calculate Final Scores based on formulas
+            // Focus: (correct / 6) * 100
+            const scoreFocus = (correctCounts.focus / 6) * 100;
+
+            // Memory: (correct * 5)
+            const scoreMemory = correctCounts.memory * 5;
+
+            // Numerical: (correct / 8) * 100
+            const scoreNumerical = (correctCounts.numerical / 8) * 100;
+
+            // Logical: (correct / 8) * 100
+            const scoreLogical = (correctCounts.logical / 8) * 100;
+
+            // Spatial: (correct / 8) * 100
+            const scoreSpatial = (correctCounts.spatial / 8) * 100;
+
+            // Total Score: Average of 5 sections
+            const totalScore = (scoreFocus + scoreMemory + scoreNumerical + scoreLogical + scoreSpatial) / 5;
+
+            // Determine Champion Category and Description
+            let championCategory = "Rookie Champion";
+            let championImage = "https://images2.imgbox.com/0d/2e/EM02OWAq_o.png";
+            let championDesc = "Perjalananmu baru dimulai, teruslah berlatih agar potensimu semakin terlihat.";
+
+            if (totalScore > 84.99) {
+                championCategory = "Elite Champion";
+                championImage = "https://images2.imgbox.com/e7/c4/oEKJTtBc_o.png";
+                championDesc = "Kamu sudah berada di jajaran terbaik, siap bersaing dan meraih prestasi puncak.";
+            } else if (totalScore > 69.999) {
+                championCategory = "Expert Champion";
+                championImage = "https://images2.imgbox.com/74/63/lJ5jWxli_o.png";
+                championDesc = "Penguasaanmu kuat dan stabil, kamu siap menghadapi tantangan yang lebih kompleks.";
+            } else if (totalScore > 49.99) {
+                championCategory = "Skilled Champion";
+                championImage = "https://images2.imgbox.com/60/2f/OZ2eb9xI_o.png";
+                championDesc = "Keterampilanmu sudah baik, kini saatnya mengasah dengan latihan yang lebih variatif.";
+            } else if (totalScore > 29.99) {
+                championCategory = "Rising Champion";
+                championImage = "https://images2.imgbox.com/43/c3/0whUPEi7_o.png";
+                championDesc = "Perkembanganmu menjanjikan, terus hadapi tantangan untuk naik ke level berikutnya.";
+            }
+
+            // Add calculated data to payload
+            transformedData['Score Focus'] = scoreFocus;
+            transformedData['Score Memory'] = scoreMemory;
+            transformedData['Score Numerical'] = scoreNumerical;
+            transformedData['Score Logical'] = scoreLogical;
+            transformedData['Score Spatial'] = scoreSpatial;
+            transformedData['Total Score'] = totalScore;
+            transformedData['Champion Category'] = championCategory;
+
+            // Flatten answers for payload
+            const flattenedAnswers = {};
+            for (const testId in state.answers) {
+                for (const questionId in state.answers[testId]) {
+                    flattenedAnswers[questionId] = state.answers[testId][questionId];
+                }
+            }
+
+            // Prepare Payload
+            state.submissionPayload = {
+                timestamp: new Date().toISOString(),
+                ...state.student,
+                ...transformedData,
+                ...flattenedAnswers // Include all answers
+            };
+
+            // Store results in state for rendering
+            state.results = {
+                category: championCategory,
+                image: championImage,
+                desc: championDesc,
+                scores: {
+                    focus: scoreFocus,
+                    memory: scoreMemory,
+                    numerical: scoreNumerical,
+                    logical: scoreLogical,
+                    spatial: scoreSpatial
+                }
+            };
+
+            // Simulate calculation delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Show Reveal Screen
+            showRevealScreen(championCategory, championImage, {
+                focus: scoreFocus,
+                memory: scoreMemory,
+                numerical: scoreNumerical,
+                logical: scoreLogical,
+                spatial: scoreSpatial
+            });
+        }
+
+        function showRevealScreen(category, image, scores) {
+            // Hide loading screen
+            document.getElementById('screen-final-submit').classList.add('hidden');
+
+            // Just switch screen, renderApp will handle the rest
+            setScreen('champion-reveal');
+        }
+
+        async function finishSubmit() {
+            if (state.isSubmitting) return;
+            state.isSubmitting = true;
+
+            // Show Loading Overlay
+            document.getElementById('loading-overlay').classList.remove('hidden');
+
+            const btn = document.querySelector('#screen-champion-reveal button');
+            if (btn) {
+                btn.innerHTML = '<div class="spinner"></div> SENDING...';
+                btn.classList.add('btn-disabled');
+                btn.disabled = true;
+            }
+
+            // Send Data (or simulate)
+            if (GOOGLE_SCRIPT_URL) {
+                try {
+                    // Using 'cors' mode (default) to get actual response
+                    // Content-Type text/plain prevents preflight OPTIONS request which GAS doesn't handle
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: JSON.stringify(state.submissionPayload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+
+                    // We can even parse the result if we want
+                    // const result = await response.json();
+                    console.log("Data submitted successfully");
+
+                } catch (e) {
+                    console.error("Upload failed", e);
+                    // If it's a CORS error, it often means the script permissions aren't "Anyone"
+                    alert("Gagal mengirim data. Mohon pastikan koneksi internet stabil.\n\nJika error berlanjut, hubungi admin. (Error: " + e.message + ")");
+
+                    // Optional: fallback to no-cors if strict CORS fails? 
+                    // For now, let's stick to reporting the error so it can be fixed.
+                }
+            } else {
+                console.error("GOOGLE_SCRIPT_URL is not defined!");
+                alert("CONFIGURATION ERROR: Google Script URL is missing! Data was NOT sent to the sheet.\n\nPlease paste your Web App URL into the GOOGLE_SCRIPT_URL variable in new_temp.html.");
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+
+            // Hide Reveal Screen and Show Final Screen
+            document.getElementById('loading-overlay').classList.add('hidden'); // Hide overlay
+            setScreen('final-submit');
+        }
+
+        // Generate Background Symbols
+        function initBackground() {
+            const container = document.getElementById('code-background');
+            const symbols = ['★', '●', '▲', '■', '♥', '♦'];
+
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.classList.add('code-symbol');
+                el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.color = ['#FFD700', '#FF69B4', '#00BFFF', '#32CD32'][Math.floor(Math.random() * 4)];
+                el.style.fontSize = (Math.random() * 2 + 2) + 'rem';
+                el.style.animationDuration = (Math.random() * 5 + 10) + 's';
+                container.appendChild(el);
+
+                setTimeout(() => el.remove(), 15000);
+            }, 800);
+        }
+
+        // Initialize
+        initBackground();
+        renderApp();
+        // ==========================================
+        // DEVELOPER MODE FUNCTIONS (REMOVE BEFORE LAUNCH)
+        // ==========================================
+        function devNext() {
+            clearAllTimers();
+            state.currentSelection = null; // Reset selection
+
+            // If we are in a test
+            if (state.screen === 'test-active' || state.screen === 'test-memory-sequence') {
+                const test = tests[state.currentTestId];
+
+                // Special handling for Observation Mode: If in observation phase, go to question phase
+                if (test.type === 'observation-mode' && state.observationPhase) {
+                    renderObservationQuestion();
+                    return;
+                }
+
+                if (state.currentQuestionIndex < test.questions.length - 1) {
+                    // Go to next question
+                    state.currentQuestionIndex++;
+                    if (test.type === 'observation-mode') {
+                        renderObservationPhase();
+                    } else {
+                        renderQuestion();
+                    }
+                } else {
+                    // Go to next test
+                    completeTest();
+                }
+            } else if (state.screen === 'welcome') {
+                setScreen('student-info');
+            } else if (state.screen === 'student-info') {
+                saveStudentInfo();
+            } else if (state.screen === 'test-intro') {
+                startTest(state.currentTestId);
+            }
+        }
+
+        function devPrev() {
+            clearAllTimers();
+            state.currentSelection = null; // Reset selection
+
+            if (state.screen === 'test-active' || state.screen === 'test-memory-sequence') {
+                if (state.currentQuestionIndex > 0) {
+                    state.currentQuestionIndex--;
+                    const test = tests[state.currentTestId];
+                    if (test.type === 'observation-mode') {
+                        renderObservationPhase();
+                    } else {
+                        renderQuestion();
+                    }
+                } else {
+                    // Go back to intro
+                    if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
+                    setScreen('test-intro');
+                }
+            } else if (state.screen === 'test-intro') {
+                // Go back to previous test
+                const sequence = ['focus', 'memory', 'numerical', 'logical', 'spatial'];
+                const currentIndex = sequence.indexOf(state.currentTestId);
+                if (currentIndex > 0) {
+                    const prevTestId = sequence[currentIndex - 1];
+                    state.currentTestId = prevTestId;
+                    setScreen('test-intro');
+                } else {
+                    setScreen('student-info');
+                }
+            } else if (state.screen === 'student-info') {
+                setScreen('welcome');
+            } else if (state.screen === 'final-submit') {
+                // Go back to last test
+                const sequence = ['focus', 'memory', 'numerical', 'logical', 'spatial'];
+                const lastTestId = sequence[sequence.length - 1];
+                state.currentTestId = lastTestId;
+                state.currentQuestionIndex = tests[lastTestId].questions.length - 1;
+                startTest(lastTestId);
+            }
+        }
+
+        // --- AUTOMATED TESTING HELPER ---
+        window.runTest = async (allCorrect) => {
+            console.log("Starting automated test...", allCorrect ? "Elite" : "Rookie");
+
+            // Mock Student
+            state.student = { name: allCorrect ? "Elite Test" : "Rookie Test", school: "Test School", class: "1", parentPhone: "6281", email: "test@test.com" };
+
+            // Mock Answers
+            state.answers = {};
+            Object.values(tests).forEach(test => {
+                state.answers[test.id] = {};
+                test.questions.forEach(q => {
+                    if (q.code) state.answers[test.id][q.id] = allCorrect ? q.correct : 'WrongAnswer';
+                });
+            });
+
+            // Call submit
+            await submitAllData();
+
+            // Wait for reveal
+            await new Promise(r => setTimeout(r, 2000));
+
+            // Return result
+            return JSON.stringify({
+                visibleScreen: document.getElementById('screen-champion-reveal').classList.contains('hidden') ? 'hidden' : 'visible',
+                title: document.getElementById('champion-title').innerText,
+                imageSrc: document.getElementById('champion-image').src,
+                scoreFocus: document.getElementById('score-focus').innerText,
+                scoreMemory: document.getElementById('score-memory').innerText,
+                scoreNumerical: document.getElementById('score-numerical').innerText,
+                scoreLogical: document.getElementById('score-logical').innerText,
+                scoreSpatial: document.getElementById('score-spatial').innerText
+            });
+        };
+    </script>
+</body>
+
+</html>
