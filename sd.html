@@ -455,7 +455,7 @@
         // App State
         const state = {
             screen: 'welcome',
-            student: { name: '', grade: '', school: '', parentPhone: '', email: '', termsAccepted: false },
+            student: { name: '', grade: '', school: '', parentPhone: '', email: '', termsAccepted: false, submissionId: null },
             currentTestId: null,
             currentQuestionIndex: 0,
             currentSelection: null,
@@ -1334,6 +1334,25 @@
             state.student.termsAccepted = terms;
             state.sessionStart = Date.now(); // Start Session Timer
 
+            // Generate or Retrieve Submission ID (Deduplication Key)
+            if (!state.student.submissionId) {
+                state.student.submissionId = 'SUB-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+            }
+
+            // IMMEDIATE LEAD SUBMISSION
+            const leadPayload = {
+                timestamp: new Date().toISOString(),
+                submissionId: state.student.submissionId, // Primary Key for Upsert
+                ...state.student,
+                status: 'Lead Captured', // Flag to identify incomplete tests
+                'Total Score': '-',
+                'Champion Category': '-'
+            };
+            // Send in background (no await) to not block user
+            sendData(leadPayload, true).then(ok => {
+                if (ok) console.log("Lead captured");
+            });
+
             storage.save(); // Initial Save
             playSound('sfx-click');
 
@@ -1974,9 +1993,11 @@
             // Prepare Payload
             state.submissionPayload = {
                 timestamp: new Date().toISOString(),
+                submissionId: state.student.submissionId, // Ensure unique ID is sent
                 ...state.student,
                 ...transformedData,
-                ...flattenedAnswers // Include all answers
+                ...flattenedAnswers, // Include all answers
+                status: 'Complete' // Update status
             };
 
             // Store results in state for rendering
@@ -2014,6 +2035,32 @@
             setScreen('champion-reveal');
         }
 
+        // Helper to send data
+        async function sendData(payload, silent = false) {
+            if (!GOOGLE_SCRIPT_URL) {
+                console.error("GOOGLE_SCRIPT_URL is not defined!");
+                if (!silent) alert("CONFIGURATION ERROR: Google Script URL is missing!");
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return false;
+            }
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`Server error: ${response.status}`);
+                return true;
+
+            } catch (e) {
+                console.error("Upload failed", e);
+                if (!silent) alert("Gagal mengirim data. Mohon pastikan koneksi internet stabil.\n\nJika error berlanjut, hubungi admin. (Error: " + e.message + ")");
+                return false;
+            }
+        }
+
         async function finishSubmit() {
             if (state.isSubmitting) return;
             state.isSubmitting = true;
@@ -2028,44 +2075,22 @@
                 btn.disabled = true;
             }
 
-            // Send Data (or simulate)
-            if (GOOGLE_SCRIPT_URL) {
-                try {
-                    // Using 'cors' mode (default) to get actual response
-                    // Content-Type text/plain prevents preflight OPTIONS request which GAS doesn't handle
-                    const response = await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain' },
-                        body: JSON.stringify(state.submissionPayload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`Server error: ${response.status}`);
-                    }
-
-                    // We can even parse the result if we want
-                    // const result = await response.json();
-                    console.log("Data submitted successfully");
-
-                } catch (e) {
-                    console.error("Upload failed", e);
-                    // If it's a CORS error, it often means the script permissions aren't "Anyone"
-                    alert("Gagal mengirim data. Mohon pastikan koneksi internet stabil.\n\nJika error berlanjut, hubungi admin. (Error: " + e.message + ")");
-
-                    // Optional: fallback to no-cors if strict CORS fails? 
-                    // For now, let's stick to reporting the error so it can be fixed.
-                }
-            } else {
-                console.error("GOOGLE_SCRIPT_URL is not defined!");
-                alert("CONFIGURATION ERROR: Google Script URL is missing! Data was NOT sent to the sheet.\n\nPlease paste your Web App URL into the GOOGLE_SCRIPT_URL variable in new_temp.html.");
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 1500));
-            }
+            // Send FINAL Data
+            const success = await sendData(state.submissionPayload);
 
             // Hide Reveal Screen and Show Final Screen
             document.getElementById('loading-overlay').classList.add('hidden'); // Hide overlay
-            storage.clear(); // Clear storage on successful completion
-            setScreen('final-submit');
+            if (success) {
+                storage.clear(); // Clear storage on successful completion
+                setScreen('final-submit');
+            } else {
+                state.isSubmitting = false; // Allow retry
+                if (btn) {
+                    btn.innerHTML = 'COBA LAGI';
+                    btn.classList.remove('btn-disabled');
+                    btn.disabled = false;
+                }
+            }
         }
 
         // Generate Background Symbols
