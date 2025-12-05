@@ -1314,9 +1314,9 @@
                 return;
             }
 
-            // Phone Validation (10-13 digits including 62)
-            if (phone.length < 10 || phone.length > 13) {
-                showModal("Nomor HP harus 10-13 digit (termasuk 62)!");
+            // Phone Validation (10-14 digits including 62)
+            if (phone.length < 10 || phone.length > 14) {
+                showModal("Nomor HP harus 10-14 digit (termasuk 62)!");
                 return;
             }
 
@@ -1448,7 +1448,7 @@
                 <div class="flex flex-col items-center w-full max-w-6xl mx-auto animate-fade-in">
                     <div class="flex justify-between w-full items-end mb-4 px-4">
                         <div class="font-arcade text-2xl text-white" style="-webkit-text-stroke: 1px black;">GRID MEMORI</div>
-                        <div class="font-bold text-3xl bg-white px-4 py-2 border-4 border-black rounded-xl shadow-md" id="mem-timer">25</div>
+                        <div class="font-bold text-3xl bg-white px-4 py-2 border-4 border-black rounded-xl shadow-md" id="mem-timer">${state.memoryItems.length}</div>
                     </div>
                     
                     <div class="grid grid-cols-4 md:grid-cols-5 gap-2 w-full">
@@ -1472,20 +1472,33 @@
             gridHtml += `</div></div>`;
             app.innerHTML = gridHtml;
 
-            // Start timer and sequence concurrently
-            startTimer();
+            // Start sequence (Timer removed, sequence controls flow)
             runFlipSequence();
         }
 
         function runFlipSequence() {
             let i = 0;
             const totalItems = state.memoryItems.length;
+            const timerEl = document.getElementById('mem-timer');
 
             const interval = setInterval(() => {
                 if (i >= totalItems) {
                     clearInterval(interval);
+                    // TRANSITION TO TEST AFTER SEQUENCE
+                    setTimeout(() => {
+                        state.currentQuestionIndex = 0;
+                        state.screen = 'test-active';
+
+                        // Start Global Timer for Memory Test (5 minutes = 300s)
+                        startGlobalTimer(300);
+
+                        renderApp();
+                    }, 500);
                     return;
                 }
+
+                // Update Counter (Images Left)
+                if (timerEl) timerEl.innerText = (totalItems - i);
 
                 const currentIndex = i;
                 const card = document.getElementById(`mem-card-${currentIndex}`);
@@ -1506,27 +1519,7 @@
             state.timers.push(interval);
         }
 
-        function startTimer() {
-            let timeLeft = 25;
-            const timerEl = document.getElementById('mem-timer');
 
-            const timerInterval = setInterval(() => {
-                timeLeft--;
-                if (timerEl) timerEl.innerText = timeLeft;
-
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    state.currentQuestionIndex = 0;
-                    state.screen = 'test-active';
-
-                    // Start Global Timer for Memory Test (5 minutes = 300s)
-                    startGlobalTimer(300);
-
-                    renderApp();
-                }
-            }, 1000);
-            state.timers.push(timerInterval);
-        }
 
         // --- OBSERVATION MODE LOGIC ---
 
