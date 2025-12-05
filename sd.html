@@ -365,7 +365,8 @@
     <!-- FINAL SUBMISSION SCREEN -->
     <div id="screen-final-submit" class="screen hidden flex flex-col items-center justify-center min-h-screen p-4">
         <div class="game-box p-6 md:p-10 max-w-2xl w-full bg-white animate-fade-in text-center">
-            <h1 class="text-3xl md:text-4xl font-arcade text-yellow-400 mb-6 text-stroke">Terima Kasih sudah mengerjakan Champions Test.</h1>
+            <h1 class="text-3xl md:text-4xl font-arcade text-yellow-400 mb-6 text-stroke">Terima Kasih sudah mengerjakan
+                Champions Test.</h1>
             <p class="text-lg md:text-xl text-gray-600 mb-8">
                 Selanjutnya tim Ruangguru akan menghubungi kamu untuk memberikan hasil lengkap nya!
             </p>
@@ -392,6 +393,64 @@
         // If empty, the app simulates saving locally.
         // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwc7fWYwcvqpEBqj8coPVl9OStREpL6zzmbKQPG5zvki-DTpuzA3cYjXUrFnJyJrOXq/exec";
+
+        // ==========================================
+        // COOKIE / STORAGE CONFIGURATION
+        // ==========================================
+        const STORAGE_KEY = 'champion_test_progress';
+        const EXPIRY_MS = 3600 * 1000; // 1 Hour
+
+        const storage = {
+            save: () => {
+                if (!state.student.name) return; // Don't save before registration
+                const data = {
+                    state: {
+                        ...state,
+                        timers: [], // Don't save active intervals
+                        memoryItems: [] // Don't save static config
+                    },
+                    timestamp: Date.now(),
+                    sessionStart: state.sessionStart || Date.now()
+                };
+                // Ensure sessionStart is in state too
+                state.sessionStart = data.sessionStart;
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                } catch (e) {
+                    console.error("Storage failed", e);
+                }
+            },
+            load: () => {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return false;
+                    const data = JSON.parse(raw);
+
+                    // Check Expiry (1 hour from SESSION START)
+                    if (Date.now() - (data.sessionStart || 0) > EXPIRY_MS) {
+                        localStorage.removeItem(STORAGE_KEY);
+                        return false;
+                    }
+
+                    // Restore State
+                    const savedState = data.state;
+                    Object.keys(savedState).forEach(key => {
+                        // Restore everything except excluded keys and static config
+                        if (key !== 'timers' && key !== 'memoryItems') {
+                            state[key] = savedState[key];
+                        }
+                    });
+                    state.sessionStart = data.sessionStart;
+                    return true;
+                } catch (e) {
+                    console.error("Failed to load progress", e);
+                    return false;
+                }
+            },
+            clear: () => {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        };
 
         // App State
         const state = {
@@ -985,7 +1044,7 @@
                                 </div>
                                 <div class="relative">
                                     <label class="block text-sm font-bold mb-2">NAMA SEKOLAH</label>
-                                    <input id="inp-school" type="text" class="w-full p-3 text-lg" placeholder="Contoh: SD Negeri 1"
+                                    <input id="inp-school" type="text" class="w-full p-3 text-lg" placeholder="Contoh: SMA Negeri 1"
                                         onfocus="document.getElementById('school-tooltip').classList.remove('hidden')"
                                         onblur="document.getElementById('school-tooltip').classList.add('hidden')">
                                     
@@ -1105,7 +1164,16 @@
                     break;
 
                 case 'test-active':
-                    renderQuestion();
+                    const currentTest = tests[state.currentTestId];
+                    if (currentTest && currentTest.type === 'observation-mode') {
+                        if (state.observationPhase) {
+                            renderObservationPhase();
+                        } else {
+                            renderObservationQuestion();
+                        }
+                    } else {
+                        renderQuestion();
+                    }
                     break;
 
                 case 'final-submit':
@@ -1264,6 +1332,9 @@
             state.student.parentPhone = phone;
             state.student.email = email;
             state.student.termsAccepted = terms;
+            state.sessionStart = Date.now(); // Start Session Timer
+
+            storage.save(); // Initial Save
             playSound('sfx-click');
 
             // Small delay for better UX
@@ -1278,12 +1349,22 @@
             setScreen('test-intro');
         }
 
-        function startGlobalTimer(duration) {
+        function startGlobalTimer(duration, isResume = false) {
             if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
-            state.testTimeLeft = duration;
+
+            // If starting fresh, set the target
+            if (!isResume || !state.timerTarget) {
+                state.timerTarget = Date.now() + (duration * 1000);
+            }
+
+            // Explicitly update remaining time immediately for display
+            state.testTimeLeft = Math.ceil((state.timerTarget - Date.now()) / 1000);
+            storage.save(); // Save timer state
 
             globalTestInterval = setInterval(() => {
-                state.testTimeLeft--;
+                const now = Date.now();
+                state.testTimeLeft = Math.ceil((state.timerTarget - now) / 1000);
+
                 const timerDisplay = document.getElementById('q-timer');
                 if (timerDisplay) {
                     timerDisplay.innerText = state.testTimeLeft + 's';
@@ -1731,6 +1812,7 @@
 
             // Reset Selection
             state.currentSelection = null;
+            storage.save(); // Save progress after answer
 
             // Small delay for better UX
             setTimeout(() => {
@@ -1754,6 +1836,7 @@
         function completeTest() {
             if (typeof globalTestInterval !== 'undefined') clearInterval(globalTestInterval);
             state.completedTests.push(state.currentTestId);
+            storage.save();
             playSound('sfx-correct');
 
             // SEQUENTIAL LOGIC: Focus -> Memory -> Numerical -> Logical -> Spatial -> Finish
@@ -1981,6 +2064,7 @@
 
             // Hide Reveal Screen and Show Final Screen
             document.getElementById('loading-overlay').classList.add('hidden'); // Hide overlay
+            storage.clear(); // Clear storage on successful completion
             setScreen('final-submit');
         }
 
@@ -2005,6 +2089,17 @@
 
         // Initialize
         initBackground();
+
+        // Attempt to restore session
+        if (storage && storage.load()) {
+            console.log("Session Restored");
+            // If in active test with timer, resume it
+            if (['numerical', 'logical', 'spatial', 'memory'].includes(state.currentTestId) && state.screen === 'test-active') {
+                // Determine duration based on test? No, rely on stored target
+                startGlobalTimer(0, true);
+            }
+        }
+
         renderApp();
         // ==========================================
         // DEVELOPER MODE FUNCTIONS (REMOVE BEFORE LAUNCH)
